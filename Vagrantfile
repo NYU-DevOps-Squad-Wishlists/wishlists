@@ -85,6 +85,7 @@ Vagrant.configure(2) do |config|
     # Install app dependencies in virtual environment as vagrant user
     sudo -H -u vagrant sh -c '. ~/venv/bin/activate && pip install -U pip && pip install wheel'
     sudo -H -u vagrant sh -c '. ~/venv/bin/activate && cd /vagrant && pip install -r requirements.txt'      
+    sudo -H -u vagrant sh -c '. ~/venv/bin/activate && cd /vagrant && FLASK_APP=service flask run --host=0.0.0.0'
   SHELL
 
   ######################################################################
