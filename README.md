@@ -47,12 +47,124 @@ Gets all wishlists.
 #### Parameters
 None
 
+#### Body
+None
+
 #### Returns
 | HTTP code | Body | Description | 
 | --------- | ---- | ----------- |
 | `200`     | Wishlists JSON object | All the existing wishlists in the database |
 | `500`     | Error JSON object | Server error |
 
-### `PUT /wishlists/:WishlistId`
+### `PUT /wishlists/:Id`
 
 #### Description
+Updates a specific wishlist.
+
+#### Parameters
+None
+
+#### Body
+None
+
+#### Returns
+| HTTP code | Body | Description | 
+| --------- | ---- | ----------- |
+| `200`     | Wishlists JSON object | The wishlist name has been updated successfully |
+| `400`     | Error JSON object | Wishlist `:id` was not found or was missing |
+| `500`     | Error JSON object | Server error |
+
+### `DELETE /wishlists/:Id`
+
+#### Description
+Deletes a wishlist.
+
+#### Parameters
+None
+
+#### Body
+None
+
+#### Returns
+| HTTP code | Body | Description | 
+| --------- | ---- | ----------- |
+| `200`     | Wishlists JSON object | The JSON object of the wishlist deleted |
+| `400`     | Error JSON object | Wishlist `:id` was not found or was missing |
+| `500`     | Error JSON object | Server error |
+
+### `POST /wishlists/:Id/items/:ItemId`
+
+#### Description
+Adds an item to a wishlist
+
+#### Parameters
+None
+
+#### Body
+None
+
+#### Returns
+| HTTP code | Body | Description | 
+| --------- | ---- | ----------- |
+| `201`     | Wishlist item JSON object | The JSON object of the wishlist item added |
+| `400`     | Error JSON object | `:WishlistId` or `:ItemId` were not found or were missing |
+| `500`     | Error JSON object | Server error |
+
+### `GET /wishlists/:Id/items/:ItemId`
+
+#### Description
+Retrieves an item on a wishlist
+
+#### Parameters
+None
+
+#### Body
+None
+
+#### Returns
+| HTTP code | Body | Description | 
+| --------- | ---- | ----------- |
+| `200`     | Wishlist item JSON object | The JSON object of the wishlist item requests |
+| `400`     | Error JSON object | `:WishlistId` or `:ItemId` were not found or were missing |
+| `500`     | Error JSON object | Server error |
+
+### `PUT /wishlists/:Id/items/:ItemId`
+
+#### Description
+Updates information about an existing item on a wishlist
+
+#### Parameters
+None
+
+#### Body
+JSON key-value store of new information for the item.  Example:
+```
+{
+   ...
+}
+```
+
+#### Returns
+| HTTP code | Body | Description | 
+| --------- | ---- | ----------- |
+| `200`     | Wishlist item JSON object | The JSON object of the wishlist item with updated data |
+| `400`     | Error JSON object | `:WishlistId` or `:ItemId` were not found or were missing |
+| `500`     | Error JSON object | Server error |
+
+### `DELETE /wishlists/:Id/items/:ItemId`
+
+#### Description
+Deletes an item from a wishlist.
+
+#### Parameters
+None
+
+#### Body
+None
+
+#### Returns
+| HTTP code | Body | Description | 
+| --------- | ---- | ----------- |
+| `200`     | Wishlist item JSON object | The JSON object of the wishlist item deleted |
+| `400`     | Error JSON object | `:WishlistId` or `:ItemId` were not found or were missing |
+| `500`     | Error JSON object | Server error |
