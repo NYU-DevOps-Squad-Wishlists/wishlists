@@ -56,6 +56,24 @@ None
 | `200`     | Wishlists JSON object | All the existing wishlists in the database |
 | `500`     | Error JSON object | Server error |
 
+### `GET /wishlists/:Id`
+
+#### Description
+Gets all the items on a specific wishlist.
+
+#### Parameters
+None
+
+#### Body
+None
+
+#### Returns
+| HTTP code | Body | Description | 
+| --------- | ---- | ----------- |
+| `200`     | Wishlist items | All the existing items on the wishlist |
+| `400`     | Error JSON object | The wishlist `:Id` does not exist or not given |
+| `500`     | Error JSON object | Server error |
+
 ### `PUT /wishlists/:Id`
 
 #### Description
