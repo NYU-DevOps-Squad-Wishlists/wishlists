@@ -56,7 +56,7 @@ None
 | `200`     | Wishlists JSON object | All the existing wishlists in the database |
 | `500`     | Error JSON object | Server error |
 
-### `GET /wishlists/:Id`
+### `GET /wishlists/:WishlistId`
 
 #### Description
 Gets all the items on a specific wishlist.
@@ -71,10 +71,11 @@ None
 | HTTP code | Body | Description | 
 | --------- | ---- | ----------- |
 | `200`     | Wishlist items | All the existing items on the wishlist |
-| `400`     | Error JSON object | The wishlist `:Id` does not exist or not given |
+| `400`     | Error JSON object | `:WishlistId` is missing |
+| `404`     | Error JSON object | `:WishlistId` does not exist |
 | `500`     | Error JSON object | Server error |
 
-### `PUT /wishlists/:Id`
+### `PUT /wishlists/:WishlistId`
 
 #### Description
 Updates a specific wishlist.
@@ -89,10 +90,11 @@ None
 | HTTP code | Body | Description | 
 | --------- | ---- | ----------- |
 | `200`     | Wishlists JSON object | The wishlist name has been updated successfully |
-| `400`     | Error JSON object | Wishlist `:id` was not found or was missing |
+| `400`     | Error JSON object | `:WishlistId` is missing |
+| `404`     | Error JSON object | `:WishlistId` is does not exist |
 | `500`     | Error JSON object | Server error |
 
-### `DELETE /wishlists/:Id`
+### `DELETE /wishlists/:WishlistId`
 
 #### Description
 Deletes a wishlist.
@@ -107,10 +109,11 @@ None
 | HTTP code | Body | Description | 
 | --------- | ---- | ----------- |
 | `200`     | Wishlists JSON object | The JSON object of the wishlist deleted |
-| `400`     | Error JSON object | Wishlist `:id` was not found or was missing |
+| `400`     | Error JSON object | `:WishlistId` is missing |
+| `404`     | Error JSON object | `:WishlistId` is does not exist |
 | `500`     | Error JSON object | Server error |
 
-### `POST /wishlists/:Id/items/:ItemId`
+### `POST /wishlists/:WishlistId/items/:ItemId`
 
 #### Description
 Adds an item to a wishlist
@@ -125,10 +128,11 @@ None
 | HTTP code | Body | Description | 
 | --------- | ---- | ----------- |
 | `201`     | Wishlist item JSON object | The JSON object of the wishlist item added |
-| `400`     | Error JSON object | `:WishlistId` or `:ItemId` were not found or were missing |
+| `400`     | Error JSON object | `:WishlistId` or `:ItemId` is missing |
+| `404`     | Error JSON object | `:WishlistId` or `:ItemId` not found |
 | `500`     | Error JSON object | Server error |
 
-### `GET /wishlists/:Id/items/:ItemId`
+### `GET /wishlists/:WishlistId/items/:ItemId`
 
 #### Description
 Retrieves an item on a wishlist
@@ -143,10 +147,11 @@ None
 | HTTP code | Body | Description | 
 | --------- | ---- | ----------- |
 | `200`     | Wishlist item JSON object | The JSON object of the wishlist item requests |
-| `400`     | Error JSON object | `:WishlistId` or `:ItemId` were not found or were missing |
+| `400`     | Error JSON object | `:WishlistId` or `:ItemId` is missing |
+| `404`     | Error JSON object | `:WishlistId` or `:ItemId` not found |
 | `500`     | Error JSON object | Server error |
 
-### `PUT /wishlists/:Id/items/:ItemId`
+### `PUT /wishlists/:WishlistId/items/:ItemId`
 
 #### Description
 Updates information about an existing item on a wishlist
@@ -166,10 +171,11 @@ JSON key-value store of new information for the item.  Example:
 | HTTP code | Body | Description | 
 | --------- | ---- | ----------- |
 | `200`     | Wishlist item JSON object | The JSON object of the wishlist item with updated data |
-| `400`     | Error JSON object | `:WishlistId` or `:ItemId` were not found or were missing |
+| `400`     | Error JSON object | `:WishlistId` or `:ItemId` is missing |
+| `404`     | Error JSON object | `:WishlistId` or `:ItemId` not found |
 | `500`     | Error JSON object | Server error |
 
-### `DELETE /wishlists/:Id/items/:ItemId`
+### `DELETE /wishlists/:WishlistId/items/:ItemId`
 
 #### Description
 Deletes an item from a wishlist.
@@ -184,5 +190,6 @@ None
 | HTTP code | Body | Description | 
 | --------- | ---- | ----------- |
 | `200`     | Wishlist item JSON object | The JSON object of the wishlist item deleted |
-| `400`     | Error JSON object | `:WishlistId` or `:ItemId` were not found or were missing |
+| `400`     | Error JSON object | `:WishlistId` or `:ItemId` is missing |
+| `404`     | Error JSON object | `:WishlistId` or `:ItemId` not found |
 | `500`     | Error JSON object | Server error |
