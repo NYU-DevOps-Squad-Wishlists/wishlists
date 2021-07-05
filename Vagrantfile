@@ -85,8 +85,6 @@ Vagrant.configure(2) do |config|
     # Install app dependencies in virtual environment as vagrant user
     sudo -H -u vagrant sh -c '. ~/venv/bin/activate && pip install -U pip && pip install wheel'
     sudo -H -u vagrant sh -c '. ~/venv/bin/activate && cd /vagrant && pip install -r requirements.txt'
-    # uncomment this line if you want to run flask app after vagrant booted      
-    # sudo -H -u vagrant sh -c '. ~/venv/bin/activate && cd /vagrant && FLASK_APP=service flask run --host=0.0.0.0'
   SHELL
 
   ######################################################################
@@ -100,7 +98,7 @@ Vagrant.configure(2) do |config|
   end
 
   ######################################################################
-  # Add a test database after Postgres is provisioned
+  # Add a database after Postgres is provisioned
   ######################################################################
   config.vm.provision "shell", inline: <<-SHELL
     # Create testdb database using postgres cli
@@ -108,7 +106,17 @@ Vagrant.configure(2) do |config|
     sleep 60
     echo "Creating test database"
     docker exec postgres psql -c "create database testdb;" -U postgres
+    echo "Creating main database"
+    docker exec postgres psql -c "create database wishlistdb;" -U postgres
     # Done
+  SHELL
+
+  ######################################################################
+  # Start the Flask app
+  ######################################################################
+  config.vm.provision "shell", inline: <<-SHELL
+    # uncomment this line if you want to run flask app after vagrant booted
+    sudo -H -u vagrant sh -c '. ~/venv/bin/activate && cd /vagrant && FLASK_APP=service flask run --host=0.0.0.0'
   SHELL
 
 end
