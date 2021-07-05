@@ -57,19 +57,19 @@ class TestWishlistModel(unittest.TestCase):
 
     def test_create_a_wishlist(self):
         """Create a wishlist and assert that it exists"""
-        wishlist = Wishlist(name="fido", customer=1)
+        wishlist = Wishlist(name="fido", customer_id=1)
         self.assertTrue(wishlist != None)
         self.assertEqual(wishlist.id, None)
         self.assertEqual(wishlist.name, "fido")
-        self.assertEqual(wishlist.customer, 1)
-        wishlist = Wishlist(name="fido", customer=1)
-        self.assertEqual(wishlist.customer, 1)
+        self.assertEqual(wishlist.customer_id, 1)
+        wishlist = Wishlist(name="fido", customer_id=1)
+        self.assertEqual(wishlist.customer_id, 1)
 
     def test_add_a_wishlist(self):
         """Create a wishlist and add it to the database"""
         wishlists = Wishlist.all()
         self.assertEqual(wishlists, [])
-        wishlist = Wishlist(name="fido", customer=1)
+        wishlist = Wishlist(name="fido", customer_id=1)
         self.assertTrue(wishlist != None)
         self.assertEqual(wishlist.id, None)
         wishlist.create()
@@ -116,22 +116,22 @@ class TestWishlistModel(unittest.TestCase):
         self.assertEqual(data["id"], wishlist.id)
         self.assertIn("name", data)
         self.assertEqual(data["name"], wishlist.name)
-        self.assertIn("customer", data)
-        self.assertEqual(data["customer"], wishlist.customer)
+        self.assertIn("customer_id", data)
+        self.assertEqual(data["customer_id"], wishlist.customer_id)
 
     def test_deserialize_a_wishlist(self):
         """Test deserialization of a Wishlist"""
         data = {
             "id": 1,
             "name": "kitty",
-            "customer": 1
+            "customer_id": 1
         }
         wishlist = Wishlist()
         wishlist.deserialize(data)
         self.assertNotEqual(wishlist, None)
         self.assertEqual(wishlist.id, None)
         self.assertEqual(wishlist.name, "kitty")
-        self.assertEqual(wishlist.customer, 1)
+        self.assertEqual(wishlist.customer_id, 1)
 
     def test_deserialize_missing_data(self):
         """Test deserialization of a Wishlist with missing data"""
@@ -159,20 +159,20 @@ class TestWishlistModel(unittest.TestCase):
         self.assertEqual(wishlist.id, wishlists[1].id)
         self.assertEqual(wishlist.name, wishlists[1].name)
 
-    def test_find_by_customer(self):
+    def test_find_by_customer_id(self):
         """Find Wishlists by Customer"""
-        Wishlist(name="fido", customer=1).create()
-        Wishlist(name="kitty", customer=2).create()
-        wishlists = Wishlist.find_by_customer(2)
-        self.assertEqual(wishlists[0].customer, 2)
+        Wishlist(name="fido", customer_id=1).create()
+        Wishlist(name="kitty", customer_id=2).create()
+        wishlists = Wishlist.find_by_customer_id(2)
+        self.assertEqual(wishlists[0].customer_id, 2)
         self.assertEqual(wishlists[0].name, "kitty")
 
     def test_find_by_name(self):
         """Find a Wishlist by Name"""
-        Wishlist(name="fido", customer=1).create()
-        Wishlist(name="kitty", customer=2).create()
+        Wishlist(name="fido", customer_id=1).create()
+        Wishlist(name="kitty", customer_id=2).create()
         wishlists = Wishlist.find_by_name("kitty")
-        self.assertEqual(wishlists[0].customer, 2)
+        self.assertEqual(wishlists[0].customer_id, 2)
         self.assertEqual(wishlists[0].name, "kitty")
 
     def test_find_or_404_found(self):

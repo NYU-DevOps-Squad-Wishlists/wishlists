@@ -89,7 +89,7 @@ class TestItemModel(unittest.TestCase):
         item.create(1)
         logging.debug(item)
         self.assertEqual(item.id, 1)
-        # Change it an save it
+        # Change it and save it
         item.name = "k9"
         original_id = item.id
         item.update()
@@ -173,8 +173,8 @@ class TestItemModel(unittest.TestCase):
 
     def test_find_by_wishlist_id(self):
         """Find items by Wishlist ID"""
-        Wishlist(name="fido", customer=1).create()
-        Wishlist(name="kitty", customer=2).create()
+        Wishlist(name="fido", customer_id=1).create()
+        Wishlist(name="kitty", customer_id=2).create()
         Item(name="Ziyi", wishlist_id=1).create(1)
         Item(name="Huang", wishlist_id=2).create(2)
         items = Item.find_by_wishlist_id(2)
@@ -186,8 +186,8 @@ class TestItemModel(unittest.TestCase):
 
     def test_find_by_name(self):
         """Find a Item by Name"""
-        Wishlist(name="fido", customer=1).create()
-        Wishlist(name="kitty", customer=2).create()
+        Wishlist(name="fido", customer_id=1).create()
+        Wishlist(name="kitty", customer_id=2).create()
         Item(name="Ziyi", wishlist_id=1).create(1)
         Item(name="Huang", wishlist_id=2).create(2)
         items = Item.find_by_name("Huang")

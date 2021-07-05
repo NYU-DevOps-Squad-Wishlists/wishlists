@@ -14,7 +14,7 @@ class WishlistFactory(factory.Factory):
 
     id = factory.Sequence(lambda n: n)
     name = factory.Faker("first_name")
-    customer = factory.Sequence(lambda n: n)
+    customer_id = factory.Sequence(lambda n: n)
 
 class ItemFactory(factory.Factory):
     """Creates fake items that you don't have to feed"""

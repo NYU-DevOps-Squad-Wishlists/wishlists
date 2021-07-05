@@ -38,7 +38,6 @@ if __name__ != "__main__":
 app.logger.info(70 * "*")
 app.logger.info("  W I S H L I S T S   S E R V I C E   R U N N I N G  ".center(70, "*"))
 app.logger.info(70 * "*")
-app.logger.info("Service inititalized!")
 
 try:
     models.init_db(app)  # make our sqlalchemy tables

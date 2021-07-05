@@ -10,7 +10,7 @@ Wishlist - A Wishlist used in the Wishlist Store
 Attributes:
 -----------
 name (string) - the name of the wishlist
-customer (int) - the customer the wishlist belongs to (i.e., 1, 2)
+customer_id (int) - the customer_id the wishlist belongs to (i.e., 1, 2)
 
 Items
 ------
@@ -61,8 +61,9 @@ class Wishlist(db.Model):
     ##################################################
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(63), nullable=False)
-    customer = db.Column(db.Integer, nullable=False)
+    customer_id = db.Column(db.Integer, nullable=False)
 
+    items = db.relationship("Item", backref="wishlist")
 
     ##################################################
     # INSTANCE METHODS
@@ -100,7 +101,7 @@ class Wishlist(db.Model):
         return {
             "id": self.id,
             "name": self.name,
-            "customer": self.customer,
+            "customer_id": self.customer_id,
         }
 
     def deserialize(self, data):
@@ -116,7 +117,7 @@ class Wishlist(db.Model):
         """
         try:
             self.name = data["name"]
-            self.customer = data["customer"]
+            self.customer_id = data["customer_id"]
         except KeyError as error:
             raise DataValidationError("Invalid wishlist: missing " + error.args[0])
         except TypeError as error:
@@ -152,7 +153,7 @@ class Wishlist(db.Model):
 
     @classmethod
     def find(cls, wishlist_id):
-        """Finds a Wishlist by it's ID
+        """Finds a Wishlist by its ID
 
         :param wishlist_id: the id of the Wishlist to find
         :type wishlist_id: int
@@ -193,18 +194,18 @@ class Wishlist(db.Model):
         return cls.query.filter(cls.name == name)
 
     @classmethod
-    def find_by_customer(cls, customer):
-        """Returns all of the Wishlists in a customer
+    def find_by_customer_id(cls, customer_id):
+        """Returns all of the Wishlists in a customer_id
 
-        :param customer: the customer of the Wishlists you want to match
-        :type customer: int
+        :param customer_id: the customer_id of the Wishlists you want to match
+        :type customer_id: int
 
-        :return: a collection of Wishlists in that customer
+        :return: a collection of Wishlists in that customer_id
         :rtype: list
 
         """
-        logger.info("Processing customer query for %s ...", customer)
-        return cls.query.filter(cls.customer == customer)
+        logger.info("Processing customer_id query for %s ...", customer_id)
+        return cls.query.filter(cls.customer_id == customer_id)
 
 class Item(db.Model):
     """
@@ -224,7 +225,7 @@ class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(63), nullable=False)
     wishlist_id = db.Column(db.Integer, db.ForeignKey('wishlist.id'))
-    wish2item = db.relationship('Wishlist', backref='wish2item')
+    # wish2item = db.relationship('Wishlist', backref='wish2item')
 
 
     ##################################################
