@@ -31,6 +31,25 @@ def get_wishlists(wishlist_id):
     pass
 
 
+@app.route("/wishlists/<int:wishlist_id>", methods=["PUT"])
+def update_suppliers(wishlist_id):
+    """
+    Update a wishlist
+    """
+    app.logger.info("Request to update wishlist with id: %s", wishlist_id)
+    check_content_type("application/json")
+    wishlist = Wishlist.find(wishlist_id)
+    if not wishlist:
+        raise NotFound("Wishlist with id '{}' was not found.".format(wishlist_id))
+    wishlist.deserialize(request.get_json())
+    wishlist.id = supplier_id
+    wishlist.save()
+
+    app.logger.info("Supplier with ID [%s] updated.", wishlist.id)
+    return make_response(jsonify(wishlist.serialize()), status.HTTP_200_OK)
+
+
+
 @app.route("/wishlists", methods=["POST"])
 def create_wishlists():
     app.logger.info("Request to create a wishlist")
