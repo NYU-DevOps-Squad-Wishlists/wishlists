@@ -27,9 +27,7 @@ def index():
 @app.route("/wishlists/<int:wishlist_id>", methods=["GET"])
 def get_wishlists(wishlist_id):
     """
-    Retrieve a single Wishlist
-
-    This endpoint will return a Wishlist based on it's id
+    Retrieve a single Wishlist. This endpoint will return a Wishlist based on its id
     """
     app.logger.info("Request for wishlist with id: %s", wishlist_id)
     wishlist = Wishlist.find(wishlist_id)
