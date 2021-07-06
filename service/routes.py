@@ -47,6 +47,20 @@ def create_wishlists():
     )
 
 
+@app.route("/wishlists/<int:wishlist_id>", methods=["DELETE"])
+def delete_wishlists(wishlist_id):
+    # """
+    # Delete a Wishlist
+
+    # This endpoint will delete a Wishlist based the id specified in the path
+    # """
+    app.logger.info("Request to delete wishlist with id: %s", wishlist_id)
+    wishlist = Wishlist.find(supplier_id)
+    if wishlist:
+        wishlist.delete()
+    return make_response("", status.HTTP_204_NO_CONTENT)
+
+
 def check_content_type(media_type):
     """Checks that the media type is correct"""
     content_type = request.headers.get("Content-Type")
