@@ -13,6 +13,7 @@ from werkzeug.exceptions import NotFound
 # variety of backends including SQLite, MySQL, and PostgreSQL
 from flask_sqlalchemy import SQLAlchemy
 from service.models import Wishlist, DataValidationError
+from service.models import Item, DataValidationError
 # Import Flask application
 from . import app
 
@@ -38,84 +39,10 @@ def list_wishlists():
     """ Returns all existing Wishlists """
     app.logger.info("Request for all existing wishlists")
     wishlist = []
-
     wishlists = Wishlist.all()
-
     results = [wishlist.serialize() for wishlist in wishlists]
     return make_response(jsonify(results), status.HTTP_200_OK)
 
-
-
-# WIP - WIP - WIP - WIP #
-
-# #retrieve wishlist
-
-# @app.route("/wishlists/<int:wishlist_id>", methods=["GET"])
-# def get_wishlists(wishlist_id):
-#     """
-#     Retrieve a single Wishlist
-
-#     This endpoint will return a wishlist based on it's id
-#     """
-#     app.logger.info("Request for wishlist with id: %s", wishlist_id)
-#     wishlist = Wishlist.find(wishlist_id)
-#     if not wishlist:
-#         raise NotFound("Wishlist with id '{}' was not found.".format(wishlist_id))
-#     return make_response(jsonify(wishlist.serialize()), status.HTTP_200_OK)
-
-# # #add wishlist
-
-
-# @app.route("/wishlists", methods=["POST"])
-# def create_wishlists():
-#     """
-#     Creates a Wishlist
-#     This endpoint will create a Wishlist based the data in the body that is posted
-#     """
-#     app.logger.info("Request to create a wishlist")
-#     check_content_type("application/json")
-#     wishlist = Wishlist()
-#     wishlist.deserialize(request.get_json())
-#     wishlist.create()
-#     message = wishlist.serialize()
-#     location_url = url_for("get_wishlists", wishlist_id=wishlist.id, _external=True)
-#     return make_response(
-#         jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
-#     )
-
-# # update an existing wishlist
-
-# @app.route("/wishlists/<int:wishlist_id>", methods=["PUT"])
-# def update_wishlists(wishlist_id):
-#     """
-#     Update a Wishlist
-
-#     This endpoint will update a Wishlist based the body that is posted
-#     """
-#     app.logger.info("Request to update wishlist with id: %s", wishlist_id)
-#     check_content_type("application/json")
-#     wishlist = Wishlist.find(wishlist_id)
-#     if not wishlist:
-#         raise NotFound("Pet with id '{}' was not found.".format(pet_id))
-#     wishlist.deserialize(request.get_json())
-#     wishlist.id = wishlist_id
-#     wishlist.save()
-#     return make_response(jsonify(wishlist.serialize()), status.HTTP_200_OK)
-
-# # delete an existing wishlist
-
-# @app.route("/pets/<int:pet_id>", methods=["DELETE"])
-# def delete_wishlists(wishlist_id):
-#     """
-#     Delete a Wishlist
-
-#     This endpoint will delete a Wishlist based the id specified in the path
-#     """
-#     app.logger.info("Request to delete wishlist with id: %s", wishlist_id)
-#     wishlist = Wishlist.find(pet_id)
-#     if wishlist:
-#         wishlist.delete()
-#     return make_response("", status.HTTP_204_NO_CONTENT)
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
