@@ -26,15 +26,9 @@ def index():
 
 @app.route("/wishlists/<int:wishlist_id>", methods=["GET"])
 def get_wishlists(wishlist_id):
-    """
-    Retrieve a single Wishlist. This endpoint will return a Wishlist based on its id
-    """
-    app.logger.info("Request for wishlist with id: %s", wishlist_id)
-    wishlist = Wishlist.find(wishlist_id)
-    if not wishlist:
-        raise NotFound("Wishlist with id '{}' was not found.".format(wishlist_id))
-    return make_response(jsonify(wishlist.serialize()), status.HTTP_200_OK)
-
+    # TODO: implement this route
+    # placeholder here so create_wishlists can return a location
+    pass
 
 @app.route("/wishlists/<int:wishlist_id>", methods=["PUT"])
 def update_wishlists(wishlist_id):
