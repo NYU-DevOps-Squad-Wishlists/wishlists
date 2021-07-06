@@ -38,7 +38,6 @@ def list_wishlists():
     """ Returns all existing Wishlists """
     app.logger.info("Request for all existing wishlists")
     wishlist = []
-    
 
     wishlists = Wishlist.all()
 
@@ -46,45 +45,48 @@ def list_wishlists():
     return make_response(jsonify(results), status.HTTP_200_OK)
 
 
-#retrieve wishlist
 
-@app.route("/wishlists/<int:wishlist_id>", methods=["GET"])
-def get_wishlists(wishlist_id):
-    """
-    Retrieve a single Wishlist
+# WIP - WIP - WIP - WIP #
 
-    This endpoint will return a wishlist based on it's id
-    """
-    app.logger.info("Request for wishlist with id: %s", wishlist_id)
-    wishlist = Wishlist.find(wishlist_id)
-    if not wishlist:
-        raise NotFound("Wishlist with id '{}' was not found.".format(wishlist_id))
-    return make_response(jsonify(wishlist.serialize()), status.HTTP_200_OK)
+# #retrieve wishlist
 
-# #add wishlist
+# @app.route("/wishlists/<int:wishlist_id>", methods=["GET"])
+# def get_wishlists(wishlist_id):
+#     """
+#     Retrieve a single Wishlist
+
+#     This endpoint will return a wishlist based on it's id
+#     """
+#     app.logger.info("Request for wishlist with id: %s", wishlist_id)
+#     wishlist = Wishlist.find(wishlist_id)
+#     if not wishlist:
+#         raise NotFound("Wishlist with id '{}' was not found.".format(wishlist_id))
+#     return make_response(jsonify(wishlist.serialize()), status.HTTP_200_OK)
+
+# # #add wishlist
 
 
-@app.route("/wishlists", methods=["POST"])
-def create_wishlists():
-    """
-    Creates a Wishlist
-    This endpoint will create a Wishlist based the data in the body that is posted
-    """
-    app.logger.info("Request to create a wishlist")
-    check_content_type("application/json")
-    wishlist = Wishlist()
-    wishlist.deserialize(request.get_json())
-    wishlist.create()
-    message = wishlist.serialize()
-    location_url = url_for("get_wishlists", wishlist_id=wishlist.id, _external=True)
-    return make_response(
-        jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
-    )
+# @app.route("/wishlists", methods=["POST"])
+# def create_wishlists():
+#     """
+#     Creates a Wishlist
+#     This endpoint will create a Wishlist based the data in the body that is posted
+#     """
+#     app.logger.info("Request to create a wishlist")
+#     check_content_type("application/json")
+#     wishlist = Wishlist()
+#     wishlist.deserialize(request.get_json())
+#     wishlist.create()
+#     message = wishlist.serialize()
+#     location_url = url_for("get_wishlists", wishlist_id=wishlist.id, _external=True)
+#     return make_response(
+#         jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
+#     )
 
 # # update an existing wishlist
 
 # @app.route("/wishlists/<int:wishlist_id>", methods=["PUT"])
-# def update_wishlists(pet_id):
+# def update_wishlists(wishlist_id):
 #     """
 #     Update a Wishlist
 
@@ -93,26 +95,26 @@ def create_wishlists():
 #     app.logger.info("Request to update wishlist with id: %s", wishlist_id)
 #     check_content_type("application/json")
 #     wishlist = Wishlist.find(wishlist_id)
-#     if not pet:
+#     if not wishlist:
 #         raise NotFound("Pet with id '{}' was not found.".format(pet_id))
-#     pet.deserialize(request.get_json())
-#     pet.id = pet_id
-#     pet.save()
-#     return make_response(jsonify(pet.serialize()), status.HTTP_200_OK)
+#     wishlist.deserialize(request.get_json())
+#     wishlist.id = wishlist_id
+#     wishlist.save()
+#     return make_response(jsonify(wishlist.serialize()), status.HTTP_200_OK)
 
 # # delete an existing wishlist
 
 # @app.route("/pets/<int:pet_id>", methods=["DELETE"])
-# def delete_pets(pet_id):
+# def delete_wishlists(wishlist_id):
 #     """
-#     Delete a Pet
+#     Delete a Wishlist
 
-#     This endpoint will delete a Pet based the id specified in the path
+#     This endpoint will delete a Wishlist based the id specified in the path
 #     """
-#     app.logger.info("Request to delete pet with id: %s", pet_id)
-#     pet = Pet.find(pet_id)
-#     if pet:
-#         pet.delete()
+#     app.logger.info("Request to delete wishlist with id: %s", wishlist_id)
+#     wishlist = Wishlist.find(pet_id)
+#     if wishlist:
+#         wishlist.delete()
 #     return make_response("", status.HTTP_204_NO_CONTENT)
 
 ######################################################################
