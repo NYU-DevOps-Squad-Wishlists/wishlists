@@ -69,6 +69,15 @@ class TestResourceServer(TestCase):
 
         self.assertEqual(response.get_json(), expected_result)
 
+    def test_list_wishlist(self):
+        resp = self.app.get(BASE_URL)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        # Make sure location header is set
+        location = resp.headers.get("Location", None)
+        self.assertIsNotNone(location)
+
+    # ---
+
     def test_create_wishlist(self):
         test_wishlist = WishlistFactory()
         resp = self.app.post(
