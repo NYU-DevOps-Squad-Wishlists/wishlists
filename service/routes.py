@@ -24,11 +24,27 @@ def index():
     )
 
 
+@app.route("/wishlists", methods=["GET"])
+def list_wishlists():
+    """ Returns all existing Wishlists """
+    app.logger.info("Request for all existing wishlists")
+    wishlist = []
+    wishlists = Wishlist.all()
+    results = [wishlist.serialize() for wishlist in wishlists]
+    return make_response(jsonify(results), status.HTTP_200_OK)
+
+
+
 @app.route("/wishlists/<int:wishlist_id>", methods=["GET"])
 def get_wishlists(wishlist_id):
-    # TODO: implement this route
-    # placeholder here so create_wishlists can return a location
-    pass
+    """
+    Retrieve a single Wishlist. This endpoint will return a Wishlist based on its id
+    """
+    app.logger.info("Request for wishlist with id: %s", wishlist_id)
+    wishlist = Wishlist.find(wishlist_id)
+    if not wishlist:
+        raise NotFound("Wishlist with id '{}' was not found.".format(wishlist_id))
+    return make_response(jsonify(wishlist.serialize()), status.HTTP_200_OK)
 
 
 @app.route("/wishlists/<int:wishlist_id>", methods=["PUT"])
@@ -42,8 +58,8 @@ def update_suppliers(wishlist_id):
     if not wishlist:
         raise NotFound("Wishlist with id '{}' was not found.".format(wishlist_id))
     wishlist.deserialize(request.get_json())
-    wishlist.id = supplier_id
-    wishlist.save()
+    wishlist.id = wishlist_id
+    wishlist.update()
 
     app.logger.info("Supplier with ID [%s] updated.", wishlist.id)
     return make_response(jsonify(wishlist.serialize()), status.HTTP_200_OK)
