@@ -53,10 +53,6 @@ class TestResourceServer(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-
-    def test_get_wishlist(self):
-        resp = self.app.get('/wishlists')
-
     def test_index_returns_service_information(self):
         expected_result = {
             "name": APP_NAME,
