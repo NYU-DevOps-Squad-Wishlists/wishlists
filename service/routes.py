@@ -48,7 +48,7 @@ def get_wishlists(wishlist_id):
 
 
 @app.route("/wishlists/<int:wishlist_id>", methods=["PUT"])
-def update_suppliers(wishlist_id):
+def update_wishlists(wishlist_id):
     """
     Update a wishlist
     """
@@ -61,7 +61,7 @@ def update_suppliers(wishlist_id):
     wishlist.id = wishlist_id
     wishlist.update()
 
-    app.logger.info("Supplier with ID [%s] updated.", wishlist.id)
+    app.logger.info("Wishlist with ID [%s] updated.", wishlist.id)
     return make_response(jsonify(wishlist.serialize()), status.HTTP_200_OK)
 
 
