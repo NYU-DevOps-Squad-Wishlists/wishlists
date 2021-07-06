@@ -3,20 +3,9 @@ Wishlists Service
 
 """
 
-import os
-import sys
-import logging
-from flask import Flask, jsonify, request, url_for, make_response, abort
-from . import status  # HTTP Status Codes
-from werkzeug.exceptions import NotFound
-# For this example we’ll use SQLAlchemy, a popular ORM that supports a
-# variety of backends including SQLite, MySQL, and PostgreSQL
-from flask_sqlalchemy import SQLAlchemy
-from service.models import Wishlist, DataValidationError
-from service.models import Item, DataValidationError
-# Import Flask application
-from . import app
-
+from flask import abort, jsonify, make_response, request, url_for
+from flask_api import status  # HTTP Status Codes
+from service.models import Wishlist
 
 # Import Flask application
 from . import app, APP_NAME, VERSION
@@ -34,29 +23,37 @@ def index():
         status.HTTP_200_OK,
     )
 
-@app.route("/wishlists", methods=["GET"])
-def list_wishlists():
-    """ Returns all existing Wishlists """
-    app.logger.info("Request for all existing wishlists")
-    wishlist = []
-    wishlists = Wishlist.all()
-    results = [wishlist.serialize() for wishlist in wishlists]
-    return make_response(jsonify(results), status.HTTP_200_OK)
+
+@app.route("/wishlists/<int:wishlist_id>", methods=["GET"])
+def get_wishlists(wishlist_id):
+    # TODO: implement this route
+    # placeholder here so create_wishlists can return a location
+    pass
 
 
-######################################################################
-#  U T I L I T Y   F U N C T I O N S
-######################################################################
+@app.route("/wishlists", methods=["POST"])
+def create_wishlists():
+    app.logger.info("Request to create a wishlist")
+    check_content_type("application/json")
+    wishlist = Wishlist()
+    wishlist.deserialize(request.get_json())
+    wishlist.create()
+    message = wishlist.serialize()
+    location_url = url_for("get_wishlists", wishlist_id=wishlist.id, _external=True)
 
-def init_db():
-    """ Initialies the SQLAlchemy app """
-    global app
-    Wishlist.init_db(app)
-    
+    app.logger.info("Wishlist with ID [%s] created.", wishlist.id)
+    return make_response(
+        jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
+    )
 
-def check_content_type(content_type):
-    """ Checks that the media type is correct """
-    if "Content-Type" in request.headers and request.headers["Content-Type"] == content_type:
+
+def check_content_type(media_type):
+    """Checks that the media type is correct"""
+    content_type = request.headers.get("Content-Type")
+    if content_type and content_type == media_type:
         return
-    app.logger.error("Invalid Content-Type: [%s]", request.headers.get("Content-Type"))
-    abort(status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, "Content-Type must be {}".format(content_type))
+    app.logger.error("Invalid Content-Type: %s", content_type)
+    abort(
+        status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+        "Content-Type must be {}".format(media_type),
+    )
