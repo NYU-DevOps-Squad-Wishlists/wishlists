@@ -35,7 +35,7 @@ db = SQLAlchemy()
 def init_db(app):
     """Initialies the SQLAlchemy app"""
     Wishlist.init_db(app)
-    Item.init_db(app)
+    # Item.init_db(app)
 
 
 class DataValidationError(Exception):
@@ -63,7 +63,7 @@ class Wishlist(db.Model):
     name = db.Column(db.String(63), nullable=False)
     customer_id = db.Column(db.Integer, nullable=False)
 
-    items = db.relationship("Item", backref="wishlist")
+    # items = db.relationship("Item", backref="wishlist")
 
     ##################################################
     # INSTANCE METHODS
