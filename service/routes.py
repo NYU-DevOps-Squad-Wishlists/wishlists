@@ -142,9 +142,10 @@ def delete_items(wishlist_id, item_id):
     This endpoint will delete a Item based the id specified in the path
     """
     app.logger.info("Request to delete item with id: %s", item_id)
+    wishlist = Wishlist.find(wishlist_id)
+    if not wishlist:
+        raise NotFound("Wishlist with id '{}' was not found.".format(wishlist_id))
     item = Item.get_by_wishlist_id_and_item_id(wishlist_id, item_id)
-    if not item:
-        raise NotFound("Item with id '{}' was not found.".format(item_id))
     if item:
         item.delete()
 

@@ -247,17 +247,3 @@ class TestResourceServer(TestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(len(resp.data), 0)
-        # make sure they are deleted
-        resp = self.app.get(
-            "{0}/{1}".format(ITEM_URL, test_item.id), content_type=CONTENT_TYPE_JSON
-        )
-        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
-
-    def test_delete_item_not_found(self):
-        """Delete a Item not found"""
-        self._create_wishlists(1)
-        test_item = None
-        resp = self.app.delete(
-            "{0}/{1}".format(ITEM_URL, test_item), content_type=CONTENT_TYPE_JSON
-        )
-        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
