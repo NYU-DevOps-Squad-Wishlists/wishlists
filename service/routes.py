@@ -5,7 +5,7 @@ Wishlists Service
 
 from flask import abort, jsonify, make_response, request, url_for
 from flask_api import status  # HTTP Status Codes
-from service.models import Wishlist
+from service.models import Wishlist, Item
 
 # Import Flask application
 from . import app, APP_NAME, VERSION
@@ -93,6 +93,52 @@ def delete_wishlists(wishlist_id):
     if wishlist:
         wishlist.delete()
     return make_response("", status.HTTP_204_NO_CONTENT)
+
+######################################################################
+# RETRIEVE A ITEM
+######################################################################
+@app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", methods=["GET"])
+def get_items(wishlist_id, item_id):
+    """
+    Retrieve a single Item
+
+    This endpoint will return a Item based on it's id
+    """
+    app.logger.info("Request for item with id: %s", item_id)
+    wishlist = Wishlist.find(wishlist_id)
+    item = Item.find(item_id)
+    if not wishlist:
+        raise NotFound("Wishlist with id '{}' was not found.".format(wishlist_id))
+    if not item:
+        raise NotFound("Item with id '{}' was not found.".format(item_id))
+
+    app.logger.info("Returning item: %s", item.name)
+    return make_response(jsonify(item.serialize()), status.HTTP_200_OK)
+
+######################################################################
+# ADD A NEW ITEM
+######################################################################
+@app.route("/wishlists/<int:wishlist_id>/items", methods=["POST"])
+def create_items(wishlist_id):
+    """
+    Creates a Item
+    This endpoint will create a Item based the data in the body that is posted
+    """
+    app.logger.info("Request to create a item")
+    check_content_type("application/json")
+    wishlist = Wishlist.find(wishlist_id)
+    if not wishlist:
+        raise NotFound("Wishlist with id '{}' was not found.".format(wishlist_id))
+    item = Item()
+    item.deserialize(request.get_json())
+    item.create(wishlist_id)
+    message = item.serialize()
+    location_url = url_for("get_items", item_id=item.id, wishlist_id=wishlist_id, _external=True)
+
+    app.logger.info("Item with ID [%s] created.", item.id)
+    return make_response(
+        jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
+    )
 
 
 def check_content_type(media_type):
