@@ -256,6 +256,7 @@ class TestResourceServer(TestCase):
             BASE_URL, json=test_wishlist.serialize(), content_type=CONTENT_TYPE_JSON
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        wishlist_json = resp.get_json()
 
         # add an item
         test_item = ItemFactory(__sequence=1)
@@ -264,15 +265,16 @@ class TestResourceServer(TestCase):
             ITEM_URL, json=test_item.serialize(), content_type=CONTENT_TYPE_JSON
         )
         self.assertEqual(resp2.status_code, status.HTTP_201_CREATED)
+        item_json = resp2.get_json()
 
         # update the item
         new_item = resp2.get_json()
-        net_item["name"] = "change_name"
+        new_item["name"] = "change_name"
         resp3 = self.app.put(
-            "/wishlists/{0}/items/{1}".format(test_wishlist["id"], test_item["id"]),
+            "/wishlists/{0}/items/{1}".format(item_json["id"], wishlist_json["id"]),
             json=new_item,
             content_type=CONTENT_TYPE_JSON,
         )
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp3.status_code, status.HTTP_200_OK)
         updated_item = resp3.get_json()
         self.assertEqual(updated_item["name"], "change_name")
