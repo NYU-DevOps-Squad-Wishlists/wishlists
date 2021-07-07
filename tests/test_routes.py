@@ -1,7 +1,9 @@
 import logging
 import os
 from unittest import TestCase
-from flask_api import status
+
+import service
+from service import status
 from factories import WishlistFactory
 from service import APP_NAME, VERSION
 from service.models import db, init_db
@@ -13,16 +15,6 @@ DATABASE_URI = os.getenv(
 )
 BASE_URL = "/wishlists"
 CONTENT_TYPE_JSON = "application/json"
-
-
-
-
-DATABASE_URI = os.getenv(
-    "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/testdb"
-)
-BASE_URL = "/wishlists"
-CONTENT_TYPE_JSON = "application/json"
-
 
 class TestResourceServer(TestCase):
 
@@ -68,9 +60,6 @@ class TestResourceServer(TestCase):
     def test_list_wishlist(self):
         resp = self.app.get(BASE_URL)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        # Make sure location header is set
-        location = resp.headers.get("Location", None)
-        self.assertIsNotNone(location)
 
     # ---
 
@@ -94,6 +83,6 @@ class TestResourceServer(TestCase):
         resp = self.app.post(BASE_URL, json={}, content_type=CONTENT_TYPE_JSON)
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_create_pet_no_content_type(self):
+    def test_create_wishlist_no_content_type(self):
         resp = self.app.post(BASE_URL)
         self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
