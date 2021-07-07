@@ -2,20 +2,10 @@ import logging
 import os
 from unittest import TestCase
 from flask_api import status
-from factories import WishlistFactory
+from factories import ItemFactory, WishlistFactory
 from service import APP_NAME, VERSION
 from service.models import db, init_db
 from service.routes import app
-from service.models import db, init_db
-
-DATABASE_URI = os.getenv(
-    "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/testdb"
-)
-BASE_URL = "/wishlists"
-CONTENT_TYPE_JSON = "application/json"
-
-
-
 
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/testdb"
@@ -72,8 +62,6 @@ class TestResourceServer(TestCase):
         location = resp.headers.get("Location", None)
         self.assertIsNotNone(location)
 
-    # ---
-
     def test_create_wishlist(self):
         test_wishlist = WishlistFactory()
         resp = self.app.post(
@@ -94,6 +82,35 @@ class TestResourceServer(TestCase):
         resp = self.app.post(BASE_URL, json={}, content_type=CONTENT_TYPE_JSON)
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_create_pet_no_content_type(self):
+    def test_create_wishlist_no_content_type(self):
         resp = self.app.post(BASE_URL)
         self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+
+    def test_read_wishlist_item_success(self):
+        wishlist = WishlistFactory()
+        wishlist.create()
+        item = ItemFactory(wishlist_id=wishlist.id)
+        item.create(wishlist.id)
+        url = "{}/{}/items/{}".format(BASE_URL, wishlist.id, item.id)
+
+        resp = self.app.get(url)
+        data = resp.get_json()
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(data["name"], item.name)
+
+    def test_read_wishlist_item_wishlist_not_found(self):
+        item = ItemFactory()
+        url = "{}/999/items/{}".format(BASE_URL, item.id)
+
+        resp = self.app.get(url)
+
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_read_wishlist_item_item_not_found(self):
+        wishlist = WishlistFactory()
+        url = "{}/{}/items/999".format(BASE_URL, wishlist.id)
+
+        resp = self.app.get(url)
+
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
