@@ -90,11 +90,7 @@ class TestResourceServer(TestCase):
         wishlist = WishlistFactory()
         wishlist.create()
         item = ItemFactory(wishlist_id=wishlist.id)
-        # TODO: remove prints
-        print(item.wishlist_id)
-        print("wishlist_id: ", wishlist.id)
         item.create(wishlist.id)
-        print(item.wishlist)
         url = "{}/{}/items/{}".format(BASE_URL, wishlist.id, item.id)
 
         resp = self.app.get(url)
