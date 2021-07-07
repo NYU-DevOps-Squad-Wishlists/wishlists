@@ -9,6 +9,7 @@ from service.models import Wishlist
 
 # Import Flask application
 from . import app, APP_NAME, VERSION
+from werkzeug.exceptions import NotFound
 
 
 @app.route("/")
