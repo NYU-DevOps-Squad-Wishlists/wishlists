@@ -131,6 +131,26 @@ def get_items(wishlist_id, item_id):
     app.logger.info("Returning item: %s", item.name)
     return make_response(jsonify(item.serialize()), status.HTTP_200_OK)
 
+######################################################################
+# DELETE A ITEM
+######################################################################
+@app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", methods=["DELETE"])
+def delete_items(wishlist_id, item_id):
+    """
+    Delete a Item
+
+    This endpoint will delete a Item based the id specified in the path
+    """
+    app.logger.info("Request to delete item with id: %s", item_id)
+    item = Item.get_by_wishlist_id_and_item_id(wishlist_id, item_id)
+    if not item:
+        raise NotFound("Item with id '{}' was not found.".format(item_id))
+    if item:
+        item.delete()
+
+    app.logger.info("Item with ID [%s] delete complete.", item_id)
+    return make_response("", status.HTTP_204_NO_CONTENT)
+
 
 def check_content_type(media_type):
     """Checks that the media type is correct"""
