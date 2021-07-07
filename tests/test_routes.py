@@ -6,16 +6,6 @@ from factories import WishlistFactory
 from service import APP_NAME, VERSION
 from service.models import db, init_db
 from service.routes import app
-from service.models import db, init_db
-
-DATABASE_URI = os.getenv(
-    "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/testdb"
-)
-BASE_URL = "/wishlists"
-CONTENT_TYPE_JSON = "application/json"
-
-
-
 
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/testdb"
@@ -72,8 +62,6 @@ class TestResourceServer(TestCase):
         location = resp.headers.get("Location", None)
         self.assertIsNotNone(location)
 
-    # ---
-
     def test_create_wishlist(self):
         test_wishlist = WishlistFactory()
         resp = self.app.post(
@@ -94,6 +82,6 @@ class TestResourceServer(TestCase):
         resp = self.app.post(BASE_URL, json={}, content_type=CONTENT_TYPE_JSON)
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_create_pet_no_content_type(self):
+    def test_create_wishlist_no_content_type(self):
         resp = self.app.post(BASE_URL)
         self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
