@@ -5,7 +5,7 @@ Wishlists Service
 
 from flask import abort, jsonify, make_response, request, url_for
 from flask_api import status  # HTTP Status Codes
-from service.models import Wishlist
+from service.models import Item, Wishlist
 
 # Import Flask application
 from . import app, APP_NAME, VERSION
@@ -92,6 +92,19 @@ def delete_wishlists(wishlist_id):
     if wishlist:
         wishlist.delete()
     return make_response("", status.HTTP_204_NO_CONTENT)
+
+
+@app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", methods=["GET"])
+def get_items(wishlist_id, item_id):
+    app.logger.info("Request for item with wishlist_id: %s and item_id: %s", wishlist_id, item_id)
+    item = Item.get_by_wishlist_id_and_item_id(wishlist_id, item_id)
+    if not item:
+        base = "Item with wishlist_id '{}' and item_id '{}' was not found."
+        message = base.format(wishlist_id, item_id)
+        raise NotFound(message)
+
+    app.logger.info("Returning item: %s", item.name)
+    return make_response(jsonify(item.serialize()), status.HTTP_200_OK)
 
 
 def check_content_type(media_type):

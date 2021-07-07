@@ -2,7 +2,7 @@ import logging
 import os
 from unittest import TestCase
 from flask_api import status
-from factories import WishlistFactory
+from factories import ItemFactory, WishlistFactory
 from service import APP_NAME, VERSION
 from service.models import db, init_db
 from service.routes import app
@@ -85,3 +85,36 @@ class TestResourceServer(TestCase):
     def test_create_wishlist_no_content_type(self):
         resp = self.app.post(BASE_URL)
         self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+
+    def test_read_wishlist_item_success(self):
+        wishlist = WishlistFactory()
+        wishlist.create()
+        item = ItemFactory(wishlist_id=wishlist.id)
+        # TODO: remove prints
+        print(item.wishlist_id)
+        print("wishlist_id: ", wishlist.id)
+        item.create(wishlist.id)
+        print(item.wishlist)
+        url = "{}/{}/items/{}".format(BASE_URL, wishlist.id, item.id)
+
+        resp = self.app.get(url)
+        data = resp.get_json()
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(data["name"], item.name)
+
+    def test_read_wishlist_item_wishlist_not_found(self):
+        item = ItemFactory()
+        url = "{}/999/items/{}".format(BASE_URL, item.id)
+
+        resp = self.app.get(url)
+
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_read_wishlist_item_item_not_found(self):
+        wishlist = WishlistFactory()
+        url = "{}/{}/items/999".format(BASE_URL, wishlist.id)
+
+        resp = self.app.get(url)
+
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
