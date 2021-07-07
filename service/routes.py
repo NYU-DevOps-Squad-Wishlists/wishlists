@@ -24,14 +24,15 @@ def index():
         status.HTTP_200_OK,
     )
 
+
 @app.route("/wishlists", methods=["GET"])
 def list_wishlists():
     """ Returns all existing Wishlists """
     app.logger.info("Request for all existing wishlists")
-    wishlist = []
     wishlists = Wishlist.all()
     results = [wishlist.serialize() for wishlist in wishlists]
     return make_response(jsonify(results), status.HTTP_200_OK)
+
 
 @app.route("/wishlists/<int:wishlist_id>", methods=["GET"])
 def get_wishlists(wishlist_id):
@@ -43,6 +44,7 @@ def get_wishlists(wishlist_id):
     if not wishlist:
         raise NotFound("Wishlist with id '{}' was not found.".format(wishlist_id))
     return make_response(jsonify(wishlist.serialize()), status.HTTP_200_OK)
+
 
 @app.route("/wishlists/<int:wishlist_id>", methods=["PUT"])
 def update_wishlists(wishlist_id):
@@ -60,9 +62,6 @@ def update_wishlists(wishlist_id):
 
     app.logger.info("Wishlist with ID [%s] updated.", wishlist.id)
     return make_response(jsonify(wishlist.serialize()), status.HTTP_200_OK)
-
-
-
 
 
 @app.route("/wishlists", methods=["POST"])
