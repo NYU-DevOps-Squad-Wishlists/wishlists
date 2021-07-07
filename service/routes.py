@@ -131,6 +131,30 @@ def get_items(wishlist_id, item_id):
     app.logger.info("Returning item: %s", item.name)
     return make_response(jsonify(item.serialize()), status.HTTP_200_OK)
 
+
+@app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", methods=["PUT"])
+def update_items(wishlist_id, item_id):
+    """
+    Update an item
+    """
+    app.logger.info("Request to update an item")
+    check_content_type("application/json")
+    wishlist = Wishlist.find(wishlist_id)
+    if not wishlist:
+        raise NotFound("Wishlist with id '{}' was not found.".format(wishlist_id))
+
+    item = Item.get_by_wishlist_id_and_item_id(wishlist_id, item_id)
+    if not item:
+        base = "item with wishlist_id '{}' and item_id '{}' was not found."
+        message = base.format(wishlist_id, item_id)
+        raise NotFound(message)
+
+    item.deserialize(request.get_json())
+    item.update()
+
+    app.logger.info("Wishlist item with ID [%s] updated.", item.id)
+    return make_response(jsonify(wishlist.serialize()), status.HTTP_200_OK)
+
 ######################################################################
 # DELETE A ITEM
 ######################################################################
