@@ -105,9 +105,9 @@ Vagrant.configure(2) do |config|
     echo "Pausing for 60 seconds to allow PostgreSQL to initialize..."
     sleep 60
     echo "Creating test database"
+    # this deletes the database if it exists; useful if you want to run `vagrant provision` on a vm that exists already
+    docker exec postgres psql -c "drop database if exists testdb;" -U postgres
     docker exec postgres psql -c "create database testdb;" -U postgres
-    echo "Creating main database"
-    docker exec postgres psql -c "create database wishlistdb;" -U postgres
     # Done
   SHELL
 
