@@ -6,6 +6,15 @@ from factories import WishlistFactory
 from service import APP_NAME, VERSION
 from service.models import db, init_db
 from service.routes import app
+from service.models import db, init_db
+
+DATABASE_URI = os.getenv(
+    "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/testdb"
+)
+BASE_URL = "/wishlists"
+CONTENT_TYPE_JSON = "application/json"
+
+
 
 
 DATABASE_URI = os.getenv(
@@ -55,6 +64,15 @@ class TestResourceServer(TestCase):
         response = self.app.get("/")
 
         self.assertEqual(response.get_json(), expected_result)
+
+    def test_list_wishlist(self):
+        resp = self.app.get(BASE_URL)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        # Make sure location header is set
+        location = resp.headers.get("Location", None)
+        self.assertIsNotNone(location)
+
+    # ---
 
     def test_create_wishlist(self):
         test_wishlist = WishlistFactory()
