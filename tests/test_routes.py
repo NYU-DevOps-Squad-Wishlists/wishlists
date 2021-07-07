@@ -238,3 +238,12 @@ class TestResourceServer(TestCase):
         """Create a Item with no content type"""
         resp = self.app.post(ITEM_URL)
         self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+
+    def test_delete_item(self):
+        """Delete a Item"""
+        test_item = self._create_items(1)[0]
+        resp = self.app.delete(
+            "{0}/{1}".format(ITEM_URL, test_item.id), content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(len(resp.data), 0)
