@@ -11,6 +11,7 @@ DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/testdb"
 )
 BASE_URL = "/wishlists"
+ITEM_URL = BASE_URL + "/1/items"
 CONTENT_TYPE_JSON = "application/json"
 
 
@@ -38,6 +39,39 @@ class TestResourceServer(TestCase):
         db.session.remove()
         db.drop_all()
 
+    def _create_wishlists(self, count):
+        """Factory method to create wishlists in bulk"""
+        wishlists = []
+        for _ in range(count):
+            test_wishlist = WishlistFactory()
+            resp = self.app.post(
+                BASE_URL, json=test_wishlist.serialize(), content_type=CONTENT_TYPE_JSON
+            )
+            self.assertEqual(
+                resp.status_code, status.HTTP_201_CREATED, "Could not create test wishlist"
+            )
+            new_wishlist = resp.get_json()
+            test_wishlist.id = new_wishlist["id"]
+            wishlists.append(test_wishlist)
+        return wishlists
+
+    def _create_items(self, count):
+        """Factory method to create items in bulk"""
+        self._create_wishlists(count)
+        items = []
+        for _ in range(count):
+            test_items = ItemFactory(__sequence=1)
+            resp = self.app.post(
+                ITEM_URL, json=test_items.serialize(), content_type=CONTENT_TYPE_JSON
+            )
+            self.assertEqual(
+                resp.status_code, status.HTTP_201_CREATED, "Could not create test item"
+            )
+            new_item = resp.get_json()
+            test_items.id = new_item["id"]
+            items.append(test_items)
+        return items
+
     def test_index_returns_OK_status(self):
         response = self.app.get("/")
 
@@ -58,9 +92,6 @@ class TestResourceServer(TestCase):
     def test_list_wishlist(self):
         resp = self.app.get(BASE_URL)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        # Make sure location header is set
-        location = resp.headers.get("Location", None)
-        self.assertIsNotNone(location)
 
     def test_create_wishlist(self):
         test_wishlist = WishlistFactory()
@@ -85,6 +116,42 @@ class TestResourceServer(TestCase):
     def test_create_wishlist_no_content_type(self):
         resp = self.app.post(BASE_URL)
         self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+
+    def test_delete_wishlist(self):
+        """Delete a Wishlist"""
+        test_wishlist = self._create_wishlists(1)[0]
+        resp = self.app.delete(
+            "{0}/{1}".format(BASE_URL, test_wishlist.id), content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(len(resp.data), 0)
+        # make sure they are deleted
+        resp = self.app.get(
+            "{0}/{1}".format(BASE_URL, test_wishlist.id), content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_update_wishlist(self):
+        """Update an existing Wishlist"""
+        # create a wishlist to update
+        test_wishlist = WishlistFactory()
+        resp = self.app.post(
+            BASE_URL, json=test_wishlist.serialize(), content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        # update the wishlist
+        new_wishlist = resp.get_json()
+        logging.debug(new_wishlist)
+        new_wishlist["name"] = "unknown"
+        resp = self.app.put(
+            "/wishlists/{}".format(new_wishlist["id"]),
+            json=new_wishlist,
+            content_type=CONTENT_TYPE_JSON,
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        updated_wishlist = resp.get_json()
+        self.assertEqual(updated_wishlist["name"], "unknown")
 
     def test_read_wishlist_item_success(self):
         wishlist = WishlistFactory()
@@ -114,3 +181,60 @@ class TestResourceServer(TestCase):
         resp = self.app.get(url)
 
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_create_item(self):
+        """Create a new Item"""
+        test_wishlist = WishlistFactory()
+        logging.debug(test_wishlist)
+        test_item = ItemFactory(__sequence=1)
+        logging.debug(test_item)
+        resp = self.app.post(
+            BASE_URL, json=test_wishlist.serialize(), content_type=CONTENT_TYPE_JSON
+        )
+        resp2 = self.app.post(
+            ITEM_URL, json=test_item.serialize(), content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(resp2.status_code, status.HTTP_201_CREATED)
+        # Make sure location header is set
+        location = resp.headers.get("Location", None)
+        self.assertIsNotNone(location)
+        location2 = resp2.headers.get("Location", None)
+        self.assertIsNotNone(location2)
+        # Check the data is correct
+        new_wishlist = resp.get_json()
+        self.assertEqual(new_wishlist["name"], test_wishlist.name, "Names do not match")
+        self.assertEqual(
+            new_wishlist["customer_id"], test_wishlist.customer_id, "Customers do not match"
+        )
+        new_item = resp2.get_json()
+        self.assertEqual(new_item["name"], test_item.name, "Names do not match")
+        self.assertEqual(
+            new_item["wishlist_id"], test_item.wishlist_id, "wishlist_id do not match"
+        )
+        # Check that the location header was correct
+        resp = self.app.get(location, content_type=CONTENT_TYPE_JSON)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        new_wishlist = resp.get_json()
+        self.assertEqual(new_wishlist["name"], test_wishlist.name, "Names do not match")
+        self.assertEqual(
+            new_wishlist["customer_id"], test_wishlist.customer_id, "Customers do not match"
+        )
+        resp2 = self.app.get(location2, content_type=CONTENT_TYPE_JSON)
+        self.assertEqual(resp2.status_code, status.HTTP_200_OK)
+        new_item = resp2.get_json()
+        self.assertEqual(new_item["name"], test_item.name, "Names do not match")
+        self.assertEqual(
+            new_item["wishlist_id"], test_item.wishlist_id, "wishlist_id do not match"
+        )
+
+    def test_create_item_no_data(self):
+        """Create a Item with missing data"""
+        self._create_wishlists(5)
+        resp = self.app.post(ITEM_URL, json={}, content_type=CONTENT_TYPE_JSON)
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_item_no_content_type(self):
+        """Create a Item with no content type"""
+        resp = self.app.post(ITEM_URL)
+        self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
