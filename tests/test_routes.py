@@ -277,4 +277,3 @@ class TestResourceServer(TestCase):
         )
         self.assertEqual(resp3.status_code, status.HTTP_200_OK)
         updated_item = resp3.get_json()
-        self.assertEqual(updated_item["name"], "change_name")
