@@ -119,6 +119,25 @@ def create_items(wishlist_id):
     )
 
 
+@app.route("/wishlists/<int:wishlist_id>/items", methods=["GET"])
+def get_wishlist_items(wishlist_id):
+    """
+    This endpoint will retrieve all items based on a wishlist_id
+    """
+    app.logger.info("Request to get all items")
+    check_content_type("application/json")
+    wishlist = Wishlist.find(wishlist_id)
+    if not wishlist:
+        raise NotFound("Wishlist with id '{}' was not found.".format(wishlist_id))
+    items = Item.all.filter_by(wishlist_id = wishlist.id)
+    results = [item.serialize() for item in items]
+    app.logger.info("Items with wishlist ID [%s] displayed.", wishlist_id)
+    return make_response(jsonify(results), status.HTTP_200_OK)
+
+
+
+
+
 @app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", methods=["GET"])
 def get_items(wishlist_id, item_id):
     app.logger.info("Request for item with wishlist_id: %s and item_id: %s", wishlist_id, item_id)
