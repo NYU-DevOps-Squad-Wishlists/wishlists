@@ -9,6 +9,7 @@ from service.models import Wishlist
 
 # Import Flask application
 from . import app, APP_NAME, VERSION
+from werkzeug.exceptions import NotFound
 
 
 @app.route("/")
@@ -63,6 +64,7 @@ def update_wishlists(wishlist_id):
 
 
 
+
 @app.route("/wishlists", methods=["POST"])
 def create_wishlists():
     app.logger.info("Request to create a wishlist")
@@ -77,6 +79,20 @@ def create_wishlists():
     return make_response(
         jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
     )
+
+
+@app.route("/wishlists/<int:wishlist_id>", methods=["DELETE"])
+def delete_wishlists(wishlist_id):
+    # """
+    # Delete a Wishlist
+
+    # This endpoint will delete a Wishlist based the id specified in the path
+    # """
+    app.logger.info("Request to delete wishlist with id: %s", wishlist_id)
+    wishlist = Wishlist.find(wishlist_id)
+    if wishlist:
+        wishlist.delete()
+    return make_response("", status.HTTP_204_NO_CONTENT)
 
 
 def check_content_type(media_type):
