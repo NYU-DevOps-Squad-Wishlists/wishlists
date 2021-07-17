@@ -207,6 +207,7 @@ class Wishlist(db.Model):
         logger.info("Processing customer_id query for %s ...", customer_id)
         return cls.query.filter(cls.customer_id == customer_id)
 
+
 class Item(db.Model):
     """
     Class that represents a Item
@@ -225,6 +226,7 @@ class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(63), nullable=False)
     wishlist_id = db.Column(db.Integer, db.ForeignKey('wishlist.id'))
+    purchased = db.Column(db.Boolean, nullable=False, default=False)
     # wish2item = db.relationship('Wishlist', backref='wish2item')
 
 
@@ -266,6 +268,7 @@ class Item(db.Model):
             "id": self.id,
             "name": self.name,
             "wishlist_id": self.wishlist_id,
+            "purchased": self.purchased,
         }
 
     def deserialize(self, data):
@@ -282,6 +285,7 @@ class Item(db.Model):
         try:
             self.name = data["name"]
             self.wishlist_id = data["wishlist_id"]
+            self.purchased = data.get("purchased", False)
         except KeyError as error:
             raise DataValidationError("Invalid item: missing " + error.args[0])
         except TypeError as error:
