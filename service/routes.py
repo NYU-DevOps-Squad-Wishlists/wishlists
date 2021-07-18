@@ -29,7 +29,18 @@ def index():
 def list_wishlists():
     """ Returns all existing Wishlists """
     app.logger.info("Request for all existing wishlists")
-    wishlists = Wishlist.all()
+    wishlists = []
+    customer_id = request.args.get("customer_id")
+    if customer_id:
+        try:
+            customer_id = int(customer_id)
+        except ValueError:
+            app.logger.info("Non-integer customer_id query, returning []")
+            wishlists = []
+        else:
+            wishlists = Wishlist.find_by_customer_id(customer_id)
+    else:
+        wishlists = Wishlist.all()
     results = [wishlist.serialize() for wishlist in wishlists]
     return make_response(jsonify(results), status.HTTP_200_OK)
 
