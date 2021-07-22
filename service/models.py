@@ -227,8 +227,6 @@ class Item(db.Model):
     name = db.Column(db.String(63), nullable=False)
     wishlist_id = db.Column(db.Integer, db.ForeignKey('wishlist.id'))
     purchased = db.Column(db.Boolean, nullable=False, default=False)
-    # wish2item = db.relationship('Wishlist', backref='wish2item')
-
 
     ##################################################
     # INSTANCE METHODS
