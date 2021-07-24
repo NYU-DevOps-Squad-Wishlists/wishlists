@@ -24,7 +24,7 @@ class App extends React.Component {
       this.setState({ wishlists: resp.data });
     });
   }
-  sendRequest(path, method, data = {}) {
+  sendRequest(path, method, data = {}, callback) {
     const options = {
       url: `http://127.0.0.1:5000${path}`,
       method,
@@ -35,6 +35,7 @@ class App extends React.Component {
     }
     axios(options).then((resp) => {
       console.log(resp);
+      callback(resp);
     });
   }
 

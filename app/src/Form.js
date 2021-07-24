@@ -13,7 +13,9 @@ class WishlistForm extends React.Component {
     this.app = props.app;
     this.state = {};
     this.model = Wishlist;
+
     this.create = this.create.bind(this);
+    this.createCallback = this.createCallback.bind(this);
     this.handleWishlistNameChange = this.handleWishlistNameChange.bind(this);
     this.handleCustomerIdChange = this.handleCustomerIdChange.bind(this);
   }
@@ -28,11 +30,16 @@ class WishlistForm extends React.Component {
     this.app.sendRequest(`/wishlists`, 'POST', {
       name: this.state.wishlist_name,
       customer_id: parseInt(this.state.customer_id)
-    });
+    }, this.createCallback);
     return false;
   }
-  createResult(message) {
-    this.setState({createResult: message});
+  createCallback(resp) {
+    if ( resp.status === 201 ) {
+      this.setState({createResult: 'Wishlist created successfully!'});
+      this.app.getWishlists();
+    } else {
+      this.setState({createResult: 'There was an error creating your wishlist'});
+    }
   }
   render() {
     const wishlistExists = this.props.wishlists && this.props.wishlists.length;
