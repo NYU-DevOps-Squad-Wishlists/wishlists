@@ -25,3 +25,4 @@ class ItemFactory(factory.Factory):
     id = factory.Sequence(lambda n: n)
     name = factory.Faker("first_name")
     wishlist_id = factory.Sequence(lambda n: n)
+    purchased = False
