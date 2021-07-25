@@ -1,5 +1,7 @@
 # Wishlists
 
+[![Build Status](https://travis-ci.com/NYU-DevOps-Squad-Wishlists/wishlists.svg?branch=main)](https://travis-ci.com/NYU-DevOps-Squad-Wishlists/wishlists)
+
 ## Dependencies
 Before you start the app, you'll need to install the following dependencies (follow the installation instructions on their websites for info):
 * Docker: https://docs.docker.com/get-docker/
