@@ -319,3 +319,22 @@ class TestResourceServer(TestCase):
             content_type=CONTENT_TYPE_JSON,
         )
         self.assertEqual(resp4.status_code, status.HTTP_404_NOT_FOUND)
+    def test_query_wishlist_by_customer_id(self):
+        number_of_wishlists = 4
+        wishlists = self._create_wishlists(number_of_wishlists)
+        for i in range(number_of_wishlists):
+            test_customer_id = wishlists[i].customer_id
+            resp = self.app.get(
+                BASE_URL, query_string="customer_id={}".format(test_customer_id)
+            )
+            self.assertEqual(resp.status_code, status.HTTP_200_OK)
+            data = resp.get_json()
+            self.assertEqual(len(data), 1)
+            for wishlist in data:
+                self.assertEqual(wishlist["customer_id"], test_customer_id)
+
+    def test_query_wishlist_by_invalid_customer_id(self):
+        resp = self.app.get(BASE_URL, query_string="customer_id=foo")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(len(data), 0)
