@@ -3,6 +3,10 @@
 Thumbs.db
 *.swp
 
+# node app stuff
+app/node_modules
+app/package-lock.json
+
 # Vagrant
 .vagrant/
 

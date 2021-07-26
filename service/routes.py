@@ -3,7 +3,7 @@ Wishlists Service
 
 """
 
-from flask import abort, jsonify, make_response, request, url_for
+from flask import abort, jsonify, make_response, request, url_for, send_from_directory
 from service import status  # HTTP Status Codes
 from service.models import Item, Wishlist
 
@@ -24,6 +24,10 @@ def index():
         status.HTTP_200_OK,
     )
 
+@app.route("/app/<path:name>", methods=["GET"])
+def display_form_app(name):
+    app.logger.info("Getting form app html: %s", name)
+    return send_from_directory('../app/', name)
 
 @app.route("/wishlists", methods=["GET"])
 def list_wishlists():
