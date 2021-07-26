@@ -110,13 +110,4 @@ Vagrant.configure(2) do |config|
     docker exec postgres psql -c "create database testdb;" -U postgres
     # Done
   SHELL
-
-  ######################################################################
-  # Start the Flask app
-  ######################################################################
-  config.vm.provision "shell", inline: <<-SHELL
-    # uncomment this line if you want to run flask app after vagrant booted
-    sudo -H -u vagrant sh -c '. ~/venv/bin/activate && cd /vagrant && FLASK_APP=service flask run --host=0.0.0.0'
-  SHELL
-
 end
