@@ -88,6 +88,21 @@ Vagrant.configure(2) do |config|
   SHELL
 
   ######################################################################
+  # Install nodejs and yarn to build the BDD form page
+  ######################################################################
+  config.vm.provision "shell", inline: <<-SHELL
+    echo "****************************************"
+    echo " Installing npm and nodejs for form app"
+    echo "****************************************"
+    # first install nodejs
+    apt-get update
+    apt-get install -y npm nodejs
+
+    # get npm dependencies inside the VM
+    sudo -H -u vagrant sh -c '. ~/venv/bin/activate && cd /vagrant/app && npm install && node ./node_modules/webpack/bin/webpack.js build'
+  SHELL
+
+  ######################################################################
   # Add PostgreSQL docker container
   ######################################################################
   # docker run -d --name postgres -p 5432:5432 -v psql_data:/var/lib/postgresql/data postgres
