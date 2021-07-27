@@ -104,8 +104,7 @@ class WishlistForm extends React.Component {
   }
   search(e) {
     e.preventDefault();
-    this.app.sendRequest(`/wishlists`, 'GET', {
-        customer_id: document.getElementById('customer_id')
+    this.app.sendRequest(`/wishlists?customer_id=${document.getElementById('search_customer_id').value}`, 'GET', {
     }, this.searchCallback);
     return false;
   }
@@ -185,7 +184,7 @@ class WishlistForm extends React.Component {
             <div className="inputContainer">
               <label for="wishlist_name">Customer ID:</label>
               <div className="item">
-                <input type="text" name="customer_id" id="customer_id" />
+                <input type="text" name="search_customer_id" id="search_customer_id" />
               </div>
             </div>
             <div className="submitResult">
