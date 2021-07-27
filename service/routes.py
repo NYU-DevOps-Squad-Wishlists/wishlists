@@ -33,7 +33,18 @@ def display_form_app(name):
 def list_wishlists():
     """ Returns all existing Wishlists """
     app.logger.info("Request for all existing wishlists")
-    wishlists = Wishlist.all()
+    wishlists = []
+    customer_id = request.args.get("customer_id")
+    if customer_id:
+        try:
+            customer_id = int(customer_id)
+        except ValueError:
+            app.logger.info("Non-integer customer_id query, returning []")
+            wishlists = []
+        else:
+            wishlists = Wishlist.find_by_customer_id(customer_id)
+    else:
+        wishlists = Wishlist.all()
     results = [wishlist.serialize() for wishlist in wishlists]
     return make_response(jsonify(results), status.HTTP_200_OK)
 
@@ -180,6 +191,27 @@ def delete_items(wishlist_id, item_id):
     app.logger.info("Item with ID [%s] delete complete.", item_id)
     return make_response("", status.HTTP_204_NO_CONTENT)
 
+@app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>/purchase", methods=["PUT"])
+def purchase_items(wishlist_id, item_id):
+    """
+    Purchase an item
+    """
+    app.logger.info("Request to purchase an item")
+    check_content_type("application/json")
+    wishlist = Wishlist.find(wishlist_id)
+    if not wishlist:
+        raise NotFound("Wishlist with id '{}' was not found.".format(wishlist_id))
+
+    item = Item.get_by_wishlist_id_and_item_id(wishlist_id, item_id)
+    if not item:
+        base = "item with wishlist_id '{}' and item_id '{}' was not found."
+        message = base.format(wishlist_id, item_id)
+        raise NotFound(message)
+    item.purchased = True
+    item.update()
+
+    app.logger.info("Wishlist item with ID [%s] purchased.", item.id)
+    return make_response(jsonify(item.serialize()), status.HTTP_200_OK)
 
 def check_content_type(media_type):
     """Checks that the media type is correct"""

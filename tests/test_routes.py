@@ -277,3 +277,64 @@ class TestResourceServer(TestCase):
         )
         self.assertEqual(resp3.status_code, status.HTTP_200_OK)
         updated_item = resp3.get_json()
+
+    def test_purchase_item(self):
+        """Purchase an existing item"""
+        # add an item
+        test_wishlist = WishlistFactory()
+        resp = self.app.post(
+            BASE_URL, json=test_wishlist.serialize(), content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        wishlist_json = resp.get_json()
+
+        # add an item
+        test_item = ItemFactory(__sequence=1)
+        logging.debug(test_item)
+        resp2 = self.app.post(
+            ITEM_URL, json=test_item.serialize(), content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp2.status_code, status.HTTP_201_CREATED)
+        item_json = resp2.get_json()
+
+        # update the item
+        new_item = resp2.get_json()
+        resp3 = self.app.put(
+            "/wishlists/{0}/items/{1}/purchase".format(wishlist_json["id"], item_json["id"]),
+            json=new_item,
+            content_type=CONTENT_TYPE_JSON,
+        )
+        self.assertEqual(resp3.status_code, status.HTTP_200_OK)
+
+        resp4 = self.app.put(
+            "/wishlists/{0}/items/999/purchase".format(wishlist_json["id"]),
+            json=new_item,
+            content_type=CONTENT_TYPE_JSON,
+        )
+        self.assertEqual(resp4.status_code, status.HTTP_404_NOT_FOUND)
+
+        resp5 = self.app.put(
+            "/wishlists/999/items/{0}/purchase".format(item_json["id"]),
+            json=new_item,
+            content_type=CONTENT_TYPE_JSON,
+        )
+        self.assertEqual(resp4.status_code, status.HTTP_404_NOT_FOUND)
+    def test_query_wishlist_by_customer_id(self):
+        number_of_wishlists = 4
+        wishlists = self._create_wishlists(number_of_wishlists)
+        for i in range(number_of_wishlists):
+            test_customer_id = wishlists[i].customer_id
+            resp = self.app.get(
+                BASE_URL, query_string="customer_id={}".format(test_customer_id)
+            )
+            self.assertEqual(resp.status_code, status.HTTP_200_OK)
+            data = resp.get_json()
+            self.assertEqual(len(data), 1)
+            for wishlist in data:
+                self.assertEqual(wishlist["customer_id"], test_customer_id)
+
+    def test_query_wishlist_by_invalid_customer_id(self):
+        resp = self.app.get(BASE_URL, query_string="customer_id=foo")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(len(data), 0)

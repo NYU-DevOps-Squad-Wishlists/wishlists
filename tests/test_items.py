@@ -62,8 +62,6 @@ class TestItemModel(unittest.TestCase):
         self.assertEqual(item.id, None)
         self.assertEqual(item.name, "fido")
         self.assertEqual(item.wishlist_id, 1)
-        item = Item(name="fido", wishlist_id=1)
-        self.assertEqual(item.wishlist_id, 1)
 
     def test_add_a_item(self):
         """Create a item and add it to the database"""
@@ -77,12 +75,13 @@ class TestItemModel(unittest.TestCase):
         item.create(1)
         # Asert that it was assigned an id and shows up in the database
         self.assertEqual(item.id, 1)
+        self.assertEqual(item.purchased, False)
         items = Item.all()
         self.assertEqual(len(items), 1)
 
     def test_update_a_item(self):
         """Update a Item"""
-        item = ItemFactory(__sequence = 1)
+        item = ItemFactory(__sequence=1)
         wishlist = WishlistFactory()
         logging.debug(item)
         wishlist.create()
@@ -104,7 +103,7 @@ class TestItemModel(unittest.TestCase):
 
     def test_delete_a_item(self):
         """Delete a Item"""
-        item = ItemFactory(__sequence = 1)
+        item = ItemFactory(__sequence=1)
         wishlist = WishlistFactory()
         wishlist.create()
         item.create(1)
@@ -124,13 +123,16 @@ class TestItemModel(unittest.TestCase):
         self.assertEqual(data["name"], item.name)
         self.assertIn("wishlist_id", data)
         self.assertEqual(data["wishlist_id"], item.wishlist_id)
+        self.assertIn("purchased", data)
+        self.assertEqual(data["purchased"], item.purchased)
 
     def test_deserialize_a_item(self):
         """Test deserialization of a Item"""
         data = {
             "id": 1,
             "name": "kitty",
-            "wishlist_id": 1
+            "wishlist_id": 1,
+            "purchased": True,
         }
         item = Item()
         item.deserialize(data)
@@ -138,6 +140,17 @@ class TestItemModel(unittest.TestCase):
         self.assertEqual(item.id, None)
         self.assertEqual(item.name, "kitty")
         self.assertEqual(item.wishlist_id, 1)
+        self.assertEqual(item.purchased, True)
+
+    def test_deserialize_item_uses_default_value_for_purchased(self):
+        data = {
+            "id": 1,
+            "name": "kitty",
+            "wishlist_id": 1,
+        }
+        item = Item()
+        item.deserialize(data)
+        self.assertEqual(item.purchased, False)
 
     def test_deserialize_missing_data(self):
         """Test deserialization of a Item with missing data"""
@@ -211,7 +224,6 @@ class TestItemModel(unittest.TestCase):
         self.assertEqual(item.id, items[1].id)
         self.assertEqual(item.name, items[1].name)
         self.assertEqual(item.wishlist_id, items[1].wishlist_id)
-
 
     def test_find_or_404_not_found(self):
         """Find or return 404 NOT found"""
