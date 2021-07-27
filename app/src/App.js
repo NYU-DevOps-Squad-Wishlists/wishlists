@@ -21,7 +21,7 @@ class App extends React.Component {
       data: {}
     }
     axios(options).then((resp) => {
-      this.setState({ wishlists: resp.data });
+      this.setState({ wishlists: resp.data.sort((a, b) => a.id > b.id ? 1 : -1) });
     });
   }
   sendRequest(path, method, data = {}, callback) {
@@ -36,7 +36,11 @@ class App extends React.Component {
     axios(options).then((resp) => {
       console.log(resp);
       callback(resp);
+    }).catch((err) => {
+      console.log(err.response);
+      callback(err.response);
     });
+
   }
 
   render() {

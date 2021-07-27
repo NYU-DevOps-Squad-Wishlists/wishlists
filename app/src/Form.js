@@ -16,8 +16,19 @@ class WishlistForm extends React.Component {
 
     this.create = this.create.bind(this);
     this.createCallback = this.createCallback.bind(this);
+    this.update = this.update.bind(this);
+    this.updateCallback = this.updateCallback.bind(this);
+    this.delete = this.delete.bind(this);
+    this.deleteCallback = this.deleteCallback.bind(this);
+    this.read = this.read.bind(this);
+    this.readCallback = this.readCallback.bind(this);
+    this.search = this.search.bind(this);
+    this.searchCallback = this.searchCallback.bind(this);
     this.handleWishlistNameChange = this.handleWishlistNameChange.bind(this);
     this.handleCustomerIdChange = this.handleCustomerIdChange.bind(this);
+  }
+  componentDidMount() {
+    this.setState({udResult: ''});
   }
   handleWishlistNameChange(e) {
     this.setState({wishlist_name: e.target.value});
@@ -38,9 +49,80 @@ class WishlistForm extends React.Component {
       this.setState({createResult: 'Wishlist created successfully!'});
       this.app.getWishlists();
     } else {
-      this.setState({createResult: 'There was an error creating your wishlist'});
+      this.setState({createResult: `${resp.data.status} ${resp.data.error}: ${resp.data.message}`});
     }
   }
+  update(e, index) {
+    e.preventDefault();
+    // extract the wishlist_id
+    const wishlist_id = document.getElementById(`wishlist_id_${index}`).value;
+    if ( wishlist_id ) {
+      this.setState({lastUdIndex: index});
+      this.app.sendRequest(`/wishlists/${wishlist_id}`, 'PUT', {
+        customer_id: document.getElementById(`wishlist_customer_id_${index}`).value,
+        name: document.getElementById(`wishlist_name_${index}`).value
+      }, this.updateCallback);
+    }
+    return false;
+  }
+  updateCallback(resp) {
+    this.app.getWishlists();
+    this.setState({udResult: "Wishlist updated successfully"});
+  }
+  delete(e, index) {
+    e.preventDefault();
+    // extract the wishlist_id
+    const wishlist_id = document.getElementById(`wishlist_id_${index}`).value;
+    if ( wishlist_id ) {
+      this.app.sendRequest(`/wishlists/${wishlist_id}`, 'DELETE', {
+      }, this.deleteCallback);
+    }
+    return false;
+  }
+  deleteCallback(resp) {
+    this.app.getWishlists();
+    this.setState({udResult: "Wishlist deleted successfully"});
+  }
+  read(e) {
+    e.preventDefault();
+    this.app.sendRequest(`/wishlists`, 'GET', {
+    }, this.readCallback);
+    return false;
+  }
+  readCallback(resp) {
+    let res = '';
+    if (resp.data.length) {
+      res = <table className="wishlistTable"><tr><th>ID</th><th>Name</th><th>Customer ID</th></tr>
+          {this.props.wishlists.map((wishlist, index) => {
+              return <tr key="wishlist{wishlist.id}"><td className="cellId">{wishlist.id}</td><td className="cellName">{wishlist.name}</td><td className="cellCustomerId">{wishlist.customer_id}</td></tr>;
+          })}
+      </table>;
+    } else {
+        res = "No wishlists exist";
+    }
+    this.setState({readResult: res});
+  }
+  search(e) {
+    e.preventDefault();
+    this.app.sendRequest(`/wishlists`, 'GET', {
+        customer_id: document.getElementById('customer_id')
+    }, this.searchCallback);
+    return false;
+  }
+  searchCallback(resp) {
+    let res = '';
+    if (resp.data.length) {
+      res = <table className="wishlistTable"><tr><th>ID</th><th>Name</th><th>Customer ID</th></tr>
+          {this.props.wishlists.map((wishlist, index) => {
+              return <tr key="wishlist{wishlist.id}"><td className="cellId">{wishlist.id}</td><td className="cellName">{wishlist.name}</td><td className="cellCustomerId">{wishlist.customer_id}</td></tr>;
+          })}
+      </table>;
+    } else {
+        res = "No wishlists exist with that Customer ID";
+    }
+    this.setState({searchResult: res});
+  }
+
   render() {
     const wishlistExists = this.props.wishlists && this.props.wishlists.length;
     const modifyInstructions = wishlistExists ?
@@ -49,7 +131,23 @@ class WishlistForm extends React.Component {
   
     let modifyTable;
     if ( wishlistExists ) { 
-      modifyTable = "table";
+      modifyTable = <div className="form-container"><table className="wishlistTable">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Customer ID</th>
+            <th>Action</th>
+        </tr>
+        {this.props.wishlists.map((wishlist, index) => {
+          return <tr key="wishlist{wishlist.id}">
+            <td className="cellId"><input type="hidden" id={'wishlist_id_'+index} value={wishlist.id} />{wishlist.id}</td>
+            <td className="cellName"><input type="text" id={'wishlist_name_'+index} defaultValue={wishlist.name} /></td>
+            <td className="cellCustomerId"><input type="text" id={'wishlist_customer_id_'+index} defaultValue={wishlist.customer_id} /></td>
+            <td className="cellAction"><button onClick={(e) => this.update(e, index)}>Update</button> <button onClick={(e) => this.delete(e, index)}>Delete</button></td>
+          </tr>;
+        })}
+      </table>
+      <div className="udResult">{this.state.udResult}</div></div>;
     }
     return <>
         <div className="form-container">
@@ -58,18 +156,44 @@ class WishlistForm extends React.Component {
           <div className="form">
             <div className="inputContainer">
               <label for="wishlist_name">Name:</label>
-              <input type="text" name="wishlist_name" id="wishlist_name" value={this.state.wishlist_name} onChange={this.handleWishlistNameChange} />
+              <div className="item">
+                <input type="text" name="wishlist_name" id="wishlist_name" value={this.state.wishlist_name} onChange={this.handleWishlistNameChange} />
+              </div>
             </div>
             <div className="inputContainer">
               <label for="customer_id">Customer ID:</label>
-              <input type="text" name="customer_id" id="customer_id" value={this.state.customer_id} onChange={this.handleCustomerIdChange} />
+              <div className="item">
+                <input type="text" name="customer_id" id="customer_id" value={this.state.customer_id} onChange={this.handleCustomerIdChange} />
+              </div>
             </div>
-            <div className="button"><button onClick={this.create}>Create</button></div>
-            <div className="result" id="createResult">{this.state.createResult}</div>
+            <div className="submitResult">
+              <div className="button"><button onClick={this.create}>Create</button></div>
+              <div className="result" id="createResult">{this.state.createResult}</div>
+            </div>
           </div>
         </div>
         <div className="instructions">{modifyInstructions}</div>
         {modifyTable}
+        <div className="form-container">
+          <div className="instructions">Click the button below to read all Wishlists.</div>
+          <button onClick={this.read}>Read</button>
+          <div className="readResult">{this.state.readResult}</div>
+        </div>
+        <div className="form-container">
+          <div className="instructions">Search for wishlists by Customer ID.</div>
+          <div className="form">
+            <div className="inputContainer">
+              <label for="wishlist_name">Customer ID:</label>
+              <div className="item">
+                <input type="text" name="customer_id" id="customer_id" />
+              </div>
+            </div>
+            <div className="submitResult">
+              <div className="button"><button onClick={this.search}>Search</button></div>
+            </div>
+          </div>
+          <div className="searchResult">{this.state.searchResult}</div>
+        </div>
     </>
   }
 }
@@ -83,7 +207,6 @@ class ItemForm extends React.Component {
   }
 
   wishlistChange(e) {
-    console.log(e.target.value);
     this.setState({
       current_wishlist: parseInt(e.target.value)
     });
