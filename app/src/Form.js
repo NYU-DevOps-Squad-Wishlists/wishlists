@@ -110,9 +110,9 @@ class WishlistForm extends React.Component {
   }
   searchCallback(resp) {
     let res = '';
-    if (resp.data.length) {
+    if (resp.data && resp.data.length) {
       res = <table className="wishlistTable"><tr><th>ID</th><th>Name</th><th>Customer ID</th></tr>
-          {this.props.wishlists.map((wishlist, index) => {
+          {resp.data.map((wishlist, index) => {
               return <tr key="wishlist{wishlist.id}"><td className="cellId">{wishlist.id}</td><td className="cellName">{wishlist.name}</td><td className="cellCustomerId">{wishlist.customer_id}</td></tr>;
           })}
       </table>;
