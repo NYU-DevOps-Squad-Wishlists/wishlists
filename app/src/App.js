@@ -33,11 +33,12 @@ class App extends React.Component {
       },
       data,
     }
+    console.log(options);
     axios(options).then((resp) => {
-      console.log(resp);
+      console.log('success');
       callback(resp);
     }).catch((err) => {
-      console.log(err.response);
+      console.log('error');
       callback(err.response);
     });
 
@@ -45,10 +46,15 @@ class App extends React.Component {
 
   render() {
     console.log('rendering App', this.state);
-    return <>
-      <WishlistForm wishlists={this.state.wishlists} app={this} />
-      <ItemForm wishlists={this.state.wishlists} app={this} />
-    </>;
+    return <div className="formColumns">
+      <div className="column wishlists">
+        <WishlistForm wishlists={this.state.wishlists} app={this} />
+      </div>
+      <div className="column middle"></div>
+      <div className="column items">
+        <ItemForm wishlists={this.state.wishlists} app={this} />
+      </div>
+    </div>;
   }
 }
 
