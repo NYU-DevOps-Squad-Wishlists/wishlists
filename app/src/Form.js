@@ -88,7 +88,7 @@ class WishlistForm extends React.Component {
     if (resp.data.length) {
       res = <table className="wishlistTable"><tr><th>ID</th><th>Name</th><th>Customer ID</th></tr>
           {this.props.wishlists.map((wishlist, index) => {
-              return <tr key="wishlist{wishlist.id}"><td className="cellId">{wishlist.id}</td><td className="cellName">{wishlist.name}</td><td className="cellCustomerId">{wishlist.customer_id}</td></tr>;
+              return <tr key={'wishlist ' + wishlist.id}><td className="cellId">{wishlist.id}</td><td className="cellName">{wishlist.name}</td><td className="cellCustomerId">{wishlist.customer_id}</td></tr>;
           })}
       </table>;
     } else {
@@ -391,7 +391,7 @@ class ItemForm extends React.Component {
               <th>Action</th>
             </tr>
             {this.state.current_items.map((item, index) => {
-              return <tr key="item{item.id}">
+              return <tr key={'item ' + item.id}>
                 <td className="cellId"><input type="hidden" id={'item_id_'+item.id} value={item.id} />{item.id}</td>
                 <td className="cellName"><input type="text" id={'item_name_'+item.id} defaultValue={item.name} /></td>
                 <td className="cellPurchased">{item.purchased.toString()}</td>
