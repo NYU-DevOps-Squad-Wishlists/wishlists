@@ -35,10 +35,10 @@ class App extends React.Component {
     }
     console.log(options);
     axios(options).then((resp) => {
-      console.log('success');
+      console.log('xhr success');
       callback(resp);
     }).catch((err) => {
-      console.log('error');
+      console.log('xhr error');
       callback(err.response);
     });
 

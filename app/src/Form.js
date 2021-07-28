@@ -229,8 +229,6 @@ class ItemForm extends React.Component {
     return `/wishlists/${wishlist_id}`;
   }
   getCurrentItems(wid) {
-    // react is weird: you need to manually clear dynamically create form inputs or their
-    // values will remain cached
     const wishlist_id = wid || this.state.current_wishlist.id;
     this.app.sendRequest(`${this.currentBasePath(wid)}/items`, 'GET', {
     }, (resp) => {
@@ -240,22 +238,12 @@ class ItemForm extends React.Component {
       } else {
         this.setState({current_items: []});
       }
-      setTimeout(() => {
-          const nodes = document.querySelectorAll(".column.items input[type=text]");
-          if ( nodes.length ) {
-              Array.from(nodes).forEach((input) => {
-                  console.log(input.value);
-                  input.value = input.value.trim();
-              });
-          }
-      }, 2000);
     });
   }
 
   create(e) {
     e.preventDefault();
     const item_name = document.getElementById('item_name').value.toString();
-    console.log('HELLO', item_name);
     this.app.sendRequest(`${this.currentBasePath()}/items`, 'POST', {
       wishlist_id: this.state.current_wishlist.id,
       name: item_name
@@ -263,7 +251,6 @@ class ItemForm extends React.Component {
     return false;
   }
   createCallback(resp) {
-    console.log(resp);
     if ( resp.status === 201 ) {
       const current_items = this.state.current_items;
       current_items.push(resp.data);
