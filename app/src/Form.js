@@ -40,10 +40,10 @@ class WishlistForm extends React.Component {
   }
   createCallback(resp) {
     if ( resp.status === 201 ) {
-      this.setState({createResult: 'Wishlist created successfully!'});
+      this.setState({createResult: 'Wishlist created successfully!', createResultClassName: 'success'});
       this.app.getWishlists();
     } else {
-      this.setState({createResult: `${resp.data.status} ${resp.data.error}: ${resp.data.message}`});
+      this.setState({createResult: `${resp.data.status} ${resp.data.error}: ${resp.data.message}`, createResultClassName: 'error'});
     }
   }
   update(e, index) {
@@ -61,7 +61,7 @@ class WishlistForm extends React.Component {
   }
   updateCallback(resp) {
     this.app.getWishlists();
-    this.setState({udResult: "Wishlist updated successfully"});
+    this.setState({udResult: "Wishlist updated successfully", udResultClassName: 'success'});
   }
   delete(e, index) {
     e.preventDefault();
@@ -75,7 +75,7 @@ class WishlistForm extends React.Component {
   }
   deleteCallback(resp) {
     this.app.getWishlists();
-    this.setState({udResult: "Wishlist deleted successfully"});
+    this.setState({udResult: "Wishlist deleted successfully", udResultClassName: 'success'});
   }
   read(e) {
     e.preventDefault();
@@ -85,16 +85,16 @@ class WishlistForm extends React.Component {
   }
   readCallback(resp) {
     let res = '';
-    if (resp.data.length) {
+    if (resp.data && resp.data.length) {
       res = <table className="wishlistTable"><tr><th>ID</th><th>Name</th><th>Customer ID</th></tr>
-          {this.props.wishlists.map((wishlist, index) => {
+          {resp.data.sort((a, b) => a.id - b.id).map((wishlist, index) => {
               return <tr key={'wishlist ' + wishlist.id}><td className="cellId">{wishlist.id}</td><td className="cellName">{wishlist.name}</td><td className="cellCustomerId">{wishlist.customer_id}</td></tr>;
           })}
       </table>;
     } else {
         res = "No wishlists exist";
     }
-    this.setState({readResult: res});
+    this.setState({readResult: res, readResultClassName: 'success'});
   }
   search(e) {
     e.preventDefault();
@@ -106,14 +106,14 @@ class WishlistForm extends React.Component {
     let res = '';
     if (resp.data && resp.data.length) {
       res = <table className="wishlistTable"><tr><th>ID</th><th>Name</th><th>Customer ID</th></tr>
-          {resp.data.map((wishlist, index) => {
+          {resp.data.sort((a, b) => a.id - b.id).map((wishlist, index) => {
               return <tr key="wishlist{wishlist.id}"><td className="cellId">{wishlist.id}</td><td className="cellName">{wishlist.name}</td><td className="cellCustomerId">{wishlist.customer_id}</td></tr>;
           })}
       </table>;
     } else {
         res = "No wishlists exist with that Customer ID";
     }
-    this.setState({searchResult: res});
+    this.setState({searchResult: res, searchResultClassName: 'success'});
   }
 
   render() {
@@ -132,7 +132,7 @@ class WishlistForm extends React.Component {
             <th>Action</th>
         </tr>
         {this.props.wishlists.map((wishlist, index) => {
-          return <tr key="wishlist{wishlist.id}">
+          return <tr key={'wishlist_' + wishlist.id}>
             <td className="cellId"><input type="hidden" id={'wishlist_id_'+index} value={wishlist.id} />{wishlist.id}</td>
             <td className="cellName"><input type="text" id={'wishlist_name_'+index} defaultValue={wishlist.name} /></td>
             <td className="cellCustomerId"><input type="text" id={'wishlist_customer_id_'+index} defaultValue={wishlist.customer_id} /></td>
@@ -160,14 +160,14 @@ class WishlistForm extends React.Component {
             </div>
             <div className="submitResult">
               <div className="button"><button onClick={this.create}>Create</button></div>
-              <div className="result" id="createResult_wishlist">{this.state.createResult}</div>
+              <div className={"result " + this.state.createResultClassName} id="createResult_wishlist">{this.state.createResult}</div>
             </div>
           </div>
         </div>
         <div className="form-container">
           <div className="instructions">Click the button below to read all Wishlists.</div>
           <button onClick={this.read}>Read</button>
-          <div className="readResult" id="readResult_wishlist">{this.state.readResult}</div>
+          <div className={"readResult " + this.state.readResultClassName} id="readResult_wishlist">{this.state.readResult}</div>
         </div>
         <div className="form-container">
           <div className="instructions">Search for wishlists by Customer ID.</div>
@@ -182,11 +182,11 @@ class WishlistForm extends React.Component {
               <div className="button"><button onClick={this.search}>Search</button></div>
             </div>
           </div>
-          <div className="searchResult" id="searchResult_wishlist">{this.state.searchResult}</div>
+          <div className={"searchResult " + this.state.searchResultClassName} id="searchResult_wishlist">{this.state.searchResult}</div>
         </div>
         <div className="instructions">{modifyInstructions}</div>
         {modifyTable}
-        <div className="udResult" id="udResult_wishlist">{this.state.udResult}</div>
+        <div className={"udResult " + this.state.udResultClassName} id="udResult_wishlist">{this.state.udResult}</div>
     </>
   }
 }
@@ -276,7 +276,7 @@ class ItemForm extends React.Component {
       const items = resp.data.sort((a, b) => a.id - b.id);
       res = <table className="wishlistTable"><tr><th>ID</th><th>Name</th><th>Purchased</th></tr>
           {items.map((item, index) => {
-              return <tr key="item{item.id}"><td className="cellId">{item.id}</td><td className="cellName">{item.name}</td><td className="cellPurchased">{item.purchased.toString()}</td></tr>;
+              return <tr key={'item_' + item.id}><td className="cellId">{item.id}</td><td className="cellName">{item.name}</td><td className="cellPurchased">{item.purchased.toString()}</td></tr>;
           })}
       </table>;
       // this.setState({current_items: items});
