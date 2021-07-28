@@ -160,14 +160,14 @@ class WishlistForm extends React.Component {
             </div>
             <div className="submitResult">
               <div className="button"><button onClick={this.create}>Create</button></div>
-              <div className="result" id="createResult">{this.state.createResult}</div>
+              <div className="result" id="createResult_wishlist">{this.state.createResult}</div>
             </div>
           </div>
         </div>
         <div className="form-container">
           <div className="instructions">Click the button below to read all Wishlists.</div>
           <button onClick={this.read}>Read</button>
-          <div className="readResult">{this.state.readResult}</div>
+          <div className="readResult" id="readResult_wishlist">{this.state.readResult}</div>
         </div>
         <div className="form-container">
           <div className="instructions">Search for wishlists by Customer ID.</div>
@@ -182,11 +182,11 @@ class WishlistForm extends React.Component {
               <div className="button"><button onClick={this.search}>Search</button></div>
             </div>
           </div>
-          <div className="searchResult">{this.state.searchResult}</div>
+          <div className="searchResult" id="searchResult_wishlist">{this.state.searchResult}</div>
         </div>
         <div className="instructions">{modifyInstructions}</div>
         {modifyTable}
-        <div className="udResult">{this.state.udResult}</div>
+        <div className="udResult" id="udResult_wishlist">{this.state.udResult}</div>
     </>
   }
 }
@@ -369,14 +369,14 @@ class ItemForm extends React.Component {
             </div>
             <div className="submitResult">
               <div className="button"><button onClick={this.create}>Add</button></div>
-              <div className={'result ' + this.state.createResultClassName} id="createResult">{this.state.createResult}</div>
+              <div className={'result ' + this.state.createResultClassName} id="createResult_item">{this.state.createResult}</div>
             </div>
           </div>
         </div>
         <div className="form-container">
           <div className="instructions">Read items on the <strong>{this.state.current_wishlist.name}</strong> wishlist below.</div>
           <button onClick={this.read}>Read</button>
-          <div className={'readResult ' + this.state.readResultClassName}>{this.state.readResult}</div>
+          <div className={'readResult ' + this.state.readResultClassName} id="readResult_item">{this.state.readResult}</div>
         </div>
         </>;
 
@@ -410,7 +410,7 @@ class ItemForm extends React.Component {
           {html}
           <div className="instructions">{modifyInstructions}</div>
           {modifyTable}
-          <div className={'udpResult ' + this.state.udpClassName}>{this.state.udpResult}</div>
+          <div className={'udpResult ' + this.state.udpClassName} id="udpResult_item">{this.state.udpResult}</div>
     </>;
   }
 }
