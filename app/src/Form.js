@@ -26,7 +26,12 @@ class WishlistForm extends React.Component {
     this.clearResult();
   }
   clearResult(e) {
-    this.setState({wishlistResult: '', wishlistResultClassName: '', wishlistResultStatus: 'Awaiting next action'});
+    this.setState({
+        wishlistResult: '',
+        wishlistResultClassName: '',
+        wishlistResultStatus: 'Awaiting next action',
+        wishlistResponseCode: ''
+    });
   }
   handleWishlistNameChange(e) {
     this.setState({wishlist_name: e.target.value});
@@ -44,12 +49,21 @@ class WishlistForm extends React.Component {
     return false;
   }
   createCallback(resp) {
+    let message, className;
     if ( resp.status === 201 ) {
-      this.setState({wishlistResult: 'Wishlist created successfully!', wishlistResultClassName: 'success', wishlistResultStatus: 'Transaction complete'});
-      this.app.getWishlists();
+        message = 'Wishlist created successfully!';
+        className = 'success';
+        this.app.getWishlists();
     } else {
-      this.setState({wishlistResult: `${resp.data.status} ${resp.data.error}: ${resp.data.message}`, wishlistResultClassName: 'error', wishlistResultStatus: 'Transaction complete'});
+        message = resp.data.message;
+        className = 'error';
     }
+    this.setState({
+        wishlistResult: message,
+        wishlistResultClassName: className,
+        wishlistResultStatus: 'Transaction complete',
+        wishlistResponseCode: resp.status
+    });
   }
   update(e, index) {
     e.preventDefault();
@@ -153,9 +167,10 @@ class WishlistForm extends React.Component {
     return <>
         <div className="form-container">
           <h2>Wishlists</h2>
-          <div className="resultInstructions">The box below will output the result of the transaction (success or error messages).</div>
+          <div className="resultInstructions">The box below will display the result of the transaction (success or errors).</div>
           <div className="resultBox">
             <div className="resultStatus" id="wishlist_result_status">Status: {this.state.wishlistResultStatus}</div>
+            <div className="responseCode" id="wishlist_response_code">Response code: {this.state.wishlistResponseCode}</div>
             <div className={"result " + this.state.wishlistResultClassName} id="wishlist_result">{this.state.wishlistResult}</div>
             <button id="wishlist_result_clear" onClick={this.clearResult}>Clear Result</button>
           </div>
@@ -181,7 +196,7 @@ class WishlistForm extends React.Component {
         <div className="form-container">
           <div className="instructions">Click the button below to read all Wishlists.</div>
           <button id="wishlist_read" onClick={this.read}>Read Wishlists</button>
-          <div className="readTable">{this.state.readTable}</div>
+          <div className="readTable" id="wishlist_read_table">{this.state.readTable}</div>
         </div>
         <div className="form-container">
           <div className="instructions">Search for wishlists by Customer ID.</div>
@@ -210,6 +225,7 @@ class ItemForm extends React.Component {
     this.state = {};
     this.app = props.app;
 
+    this.clearResult = this.clearResult.bind(this);
     this.wishlistChange = this.wishlistChange.bind(this);
     this.getCurrentItems = this.getCurrentItems.bind(this);
     this.create = this.create.bind(this);
@@ -224,16 +240,21 @@ class ItemForm extends React.Component {
     this.purchaseCallback = this.purchaseCallback.bind(this);
   }
 
+  componentDidMount() {
+      this.clearResult();
+  }
+  clearResult(e) {
+    this.setState({
+        itemResult: '',
+        itemResultClassName: '',
+        itemResultStatus: 'Awaiting next action',
+        itemResponseCode: ''
+    });
+  }
   wishlistChange(e) {
     this.setState({
       current_items: [],
       current_wishlist: this.props.wishlists.find((wishlist) => wishlist.id === parseInt(e.target.value, 10)),
-      readResult: '',
-      readResultClassName: '',
-      createResult: '',
-      createResultClassName: '',
-      udpResult: '',
-      udpResultClassName: '',
     });
     this.getCurrentItems(parseInt(e.target.value), 10);
   }
@@ -264,18 +285,23 @@ class ItemForm extends React.Component {
     return false;
   }
   createCallback(resp) {
+    let message, className;
+    const current_items = this.state.current_items;
     if ( resp.status === 201 ) {
-      const current_items = this.state.current_items;
-      current_items.push(resp.data);
-      this.setState({
-          createResult: 'Item added successfully!',
-          createResultClassName: 'success',
-          current_items
-      });
-      //this.app.getItems();
+        current_items.push(resp.data);
+        message = 'Item added successfully!';
+        className = 'success';
     } else {
-      this.setState({createResult: `${resp.data.status} ${resp.data.error}: ${resp.data.message}`, createResultClassName: 'error'});
+        message = resp.data.message;
+        className = 'error';
     }
+    this.setState({
+        itemResult: message,
+        itemResultClassName: className,
+        itemResultStatus: 'Transaction complete',
+        itemResponseCode: resp.status,
+        current_items
+    });
   }
   read(e) {
     e.preventDefault();
@@ -285,18 +311,26 @@ class ItemForm extends React.Component {
   }
   readCallback(resp) {
     let res = '';
+    let table = '';
     if (resp.data.length) {
       const items = resp.data.sort((a, b) => a.id - b.id);
-      res = <table className="wishlistTable"><tr><th>ID</th><th>Name</th><th>Purchased</th></tr>
+      table = <table className="wishlistTable"><tr><th>ID</th><th>Name</th><th>Purchased</th></tr>
           {items.map((item, index) => {
               return <tr key={'item_' + item.id}><td className="cellId">{item.id}</td><td className="cellName">{item.name}</td><td className="cellPurchased">{item.purchased.toString()}</td></tr>;
           })}
       </table>;
+      res = 'Items listed below';
       // this.setState({current_items: items});
     } else {
       res = "No items on this wishlist";
     }
-    this.setState({readResult: res, readResultClassName: 'success'});
+    this.setState({
+        itemResult: res,
+        itemResultClassName: 'success',
+        itemResultStatus: 'Transaction complete',
+        itemResponseCode: resp.status,
+        readTable: table
+    });
   }
   update(e, item_id) {
     e.preventDefault();
@@ -308,12 +342,21 @@ class ItemForm extends React.Component {
     return false;
   }
   updateCallback(resp) {
-    if ( resp.status === 200 ) {
-        this.getCurrentItems();
-        this.setState({udpResult: 'Item updated successfully', udpClassName: 'success'});
-    } else {
-        this.setState({udpResult: `${resp.data.status} ${resp.data.error}: ${resp.data.message}`, udpClassName: 'error'});
-    }
+      let message = '', className = '';
+      if ( resp.status === 200 ) {
+          this.getCurrentItems();
+          message = 'Item updated successfully';
+          className = 'success';
+      } else {
+          message = resp.data.message;
+          className = 'error';
+      }
+      this.setState({
+          itemResult: message,
+          itemResultClassName: className,
+          itemResultStatus: 'Transaction complete',
+          itemResponseCode: resp.status
+      });
   }
   delete(e, item_id) {
     e.preventDefault();
@@ -323,12 +366,21 @@ class ItemForm extends React.Component {
     return false;
   }
   deleteCallback(resp) {
-    if ( resp.status === 204 ) {
-        this.getCurrentItems();
-        this.setState({udpResult: 'Item deleted successfully', udpClassName: 'success'});
-    } else {
-        this.setState({udpResult: `${resp.data.status} ${resp.data.error}: ${resp.data.message}`, udpClassName: 'error'});
-    }
+      let message = '', className = '';
+      if ( resp.status === 204 ) {
+          this.getCurrentItems();
+          message = 'Item deleted successfully';
+          className = 'success';
+      } else {
+          message = resp.data.message;
+          className = 'error';
+      }
+      this.setState({
+          itemResult: message,
+          itemResultClassName: className,
+          itemResultStatus: 'Transaction complete',
+          itemResponseCode: resp.status
+      });
   }
   purchase(e, item_id) {
     e.preventDefault();
@@ -338,12 +390,21 @@ class ItemForm extends React.Component {
     return false;
   }
   purchaseCallback(resp) {
+      let message = '', className = '';
       if ( resp.status === 200 ) {
           this.getCurrentItems();
-          this.setState({udpResult: 'Item purchased!', udpClassName: 'success'});
+          message = 'Item purchased';
+          className = 'success';
       } else {
-        this.setState({udpResult: `${resp.data.status} ${resp.data.error}: ${resp.data.message}`, udpClassName: 'error'});
+          message = resp.data.message;
+          className = 'error';
       }
+      this.setState({
+          itemResult: message,
+          itemResultClassName: className,
+          itemResultStatus: 'Transaction complete',
+          itemResponseCode: resp.status
+      });
   }
 
 
@@ -382,14 +443,13 @@ class ItemForm extends React.Component {
             </div>
             <div className="submitResult">
               <div className="button"><button id="item_create" onClick={this.create}>Add Item</button></div>
-              <div className={'result ' + this.state.createResultClassName} id="createResult_item">{this.state.createResult}</div>
             </div>
           </div>
         </div>
         <div className="form-container">
           <div className="instructions">Read items on the <strong>{this.state.current_wishlist.name}</strong> wishlist below.</div>
           <button id="item_read" onClick={this.read}>Read Items</button>
-          <div className={'readResult ' + this.state.readResultClassName} id="readResult_item">{this.state.readResult}</div>
+          <div className="readTable" id="item_read_table">{this.state.readTable}</div>
         </div>
         </>;
 
@@ -419,7 +479,13 @@ class ItemForm extends React.Component {
     }
     return <>
           <h2>Items</h2>
-          <div className={"result " + this.state.latestResultClassName} id="item_result"></div>
+          <div className="resultInstructions">The box below will display the result of the transaction (success or errors).</div>
+          <div className="resultBox">
+            <div className="resultStatus" id="item_result_status">Status: {this.state.itemResultStatus}</div>
+            <div className="responseCode" id="item_response_code">Response code: {this.state.itemResponseCode}</div>
+            <div className={"result " + this.state.itemResultClassName} id="item_result">{this.state.itemResult}</div>
+            <button id="item_result_clear" onClick={this.clearResult}>Clear Result</button>
+          </div>
           {wishlistSelector}
           {html}
           <div className="instructions">{modifyInstructions}</div>

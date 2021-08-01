@@ -4,12 +4,13 @@ Environment for Behave Testing
 from os import getenv
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.common.by import By
 
 WAIT_SECONDS = int(getenv('WAIT_SECONDS', '3'))
-BASE_URL = getenv('BASE_URL', 'http://localhost:5000/app/index.html')
+BASE_URL = getenv('BASE_URL', 'http://127.0.0.1:5000/app/index.html')
 
 
 def before_all(context):
@@ -26,7 +27,11 @@ def before_all(context):
 
     context.WAIT_SECONDS = WAIT_SECONDS
 
-    context.driver = webdriver.Chrome(options=options)
+    # enable browser logging
+    d = DesiredCapabilities.CHROME
+    d['loggingPrefs'] = { 'browser':'ALL' }
+
+    context.driver = webdriver.Chrome(options=options, desired_capabilities=d)
     context.driver.set_window_size(1120, 550)
     context.driver.implicitly_wait(context.WAIT_SECONDS)  # seconds
     context.base_url = BASE_URL
@@ -50,6 +55,19 @@ def after_scenario(context, scenario):
     WebDriverWait(context.driver, WAIT_SECONDS).until(
            expected_conditions.text_to_be_present_in_element(
                (By.ID, "wishlist_result_status"),
+               "Status: Awaiting next action"
+           )
+    )
+
+    clear_item_button = context.driver.find_element_by_id("item_result_clear")
+    item_result = context.driver.find_element_by_id("item_result")
+    actions = ActionChains(context.driver)
+    actions.move_to_element(clear_item_button)
+    actions.click(clear_item_button)
+    actions.perform()
+    WebDriverWait(context.driver, WAIT_SECONDS).until(
+           expected_conditions.text_to_be_present_in_element(
+               (By.ID, "item_result_status"),
                "Status: Awaiting next action"
            )
     )

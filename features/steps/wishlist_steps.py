@@ -34,6 +34,17 @@ def step_impl(context, name, customer_id):
     customer_id_input.clear()
     customer_id_input.send_keys(customer_id)
 
+@when('I enter a new Wishlist with no data')
+def step_impl(context):
+    name_input = context.driver.find_element_by_name("wishlist_name")
+    name_input.clear()
+    # print('name: (' + name_input.get_attribute('value') + ')')
+    name_input.send_keys("")
+    customer_id_input = context.driver.find_element_by_name("customer_id")
+    customer_id_input.clear()
+    # print('customer_id: (' + customer_id_input.get_attribute('value') + ')')
+    customer_id_input.send_keys("")
+
 @when('I press the button "{button}"')
 def step_impl(context, button):
     button_element = context.driver.find_element_by_id(buttonDictionary[button])
@@ -49,11 +60,17 @@ def step_impl(context, button):
            )
         )
     finally:
-        print(context.driver.find_element_by_id("wishlist_result_status"))
-        print(context.driver.find_element_by_id("wishlist_result_status").text)
+        for entry in context.driver.get_log('browser'):
+            print(entry)
 
-@then('I should see the success message "{message}" in "{element_id}"')
+@then('I should see the message "{message}" in "{element_id}"')
 def step_impl(context, message, element_id):
     element = context.driver.find_element_by_id(element_id)
     assert message in element.text
-    
+
+@then('the server response code should be "{code}" in "{element_id}"')
+def step_impl(context, code, element_id):
+    element = context.driver.find_element_by_id(element_id)
+    response = "Response code: " + code
+    assert response in element.text
+
