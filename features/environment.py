@@ -10,7 +10,7 @@ from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.common.by import By
 
 WAIT_SECONDS = int(getenv('WAIT_SECONDS', '3'))
-BASE_URL = getenv('BASE_URL', 'http://127.0.0.1:5000/app/index.html')
+BASE_URL = getenv('BASE_URL', 'http://127.0.0.1:8080/app/index.html')
 
 
 def before_all(context):
