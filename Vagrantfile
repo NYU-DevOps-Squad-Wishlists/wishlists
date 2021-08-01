@@ -96,7 +96,7 @@ Vagrant.configure(2) do |config|
     echo "****************************************"
     # first install nodejs
     apt-get update
-    apt-get install -y npm nodejs
+    apt-get install -y npm nodejs chromium-browser chromium-chromedriver python3-selenium
 
     # get npm dependencies inside the VM
     # sudo -H -u vagrant sh -c '. ~/venv/bin/activate && cd /vagrant/app && npm install && node ./node_modules/webpack/bin/webpack.js build'

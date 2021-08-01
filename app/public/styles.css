@@ -46,9 +46,6 @@ h2 {
 .form .submitResult .button {
     grid-area: button;
 }
-.form .submitResult .result {
-    grid-area: result;
-}
 .wishlistTable {
     border-collapse: collapse;
 }
@@ -80,19 +77,23 @@ h2 {
 .wishlistTable .cellAction {
     display: flex;
 }
-.udResult {
-    margin-top: 10px;
+.result {
+    margin: 10px 0;
+    border: solid 1px #999;
+    height: 50px;
 }
-.udpResult {
-    margin-top: 10px;
-}
-.udpResult.success, .result.success, .udResult.success {
+.result.success {
     background-color: #caffda;
 }
-.udpResult.error, .result.error, .udResult.error {
+.result.error {
     background-color: #ffcaca;
     color: #d00000;
 }
-.readResult, .searchResult {
+.readTable, .searchTable {
     margin-top: 10px;
+}
+.resultBox {
+    border: solid 1px #999;
+    padding: 5px;
+    margin-bottom: 30px;
 }
