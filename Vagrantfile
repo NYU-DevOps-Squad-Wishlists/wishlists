@@ -99,7 +99,7 @@ Vagrant.configure(2) do |config|
     apt-get install -y npm nodejs
 
     # get npm dependencies inside the VM
-    sudo -H -u vagrant sh -c '. ~/venv/bin/activate && cd /vagrant/app && npm install && node ./node_modules/webpack/bin/webpack.js build'
+    # sudo -H -u vagrant sh -c '. ~/venv/bin/activate && cd /vagrant/app && npm install && node ./node_modules/webpack/bin/webpack.js build'
   SHELL
 
   ######################################################################

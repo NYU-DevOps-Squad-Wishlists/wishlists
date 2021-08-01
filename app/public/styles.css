@@ -1,0 +1,98 @@
+body {
+    font-family: Roboto, Helvetica, sans-serif;
+    padding: 20px;
+}
+h1 {
+}
+h2 {
+    margin-bottom: 10px;
+    padding: 0;
+}
+.formColumns {
+    display: grid;
+    grid-template-columns: 1fr 20px 1fr;
+}
+.formColumns .column.middle {
+    background-color: #ccc;
+    margin: 0 9px;
+}
+.instructions {
+    padding-bottom: 10px;
+}
+.form-container {
+    border-style: solid;
+    border-color: #ccc;
+    border-width: 0 0 1px 0;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+.form .inputContainer {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    grid-template-areas: 'label input';
+    margin-bottom: 10px;
+}
+.form .inputContainer label {
+    grid-area: label;
+}
+.form .inputContainer .item {
+    grid-area: input;
+}
+.form .submitResult {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    grid-template-areas: 'button result';
+}
+.form .submitResult .button {
+    grid-area: button;
+}
+.form .submitResult .result {
+    grid-area: result;
+}
+.wishlistTable {
+    border-collapse: collapse;
+}
+.wishlistTable th {
+    border: solid 1px #666;
+    padding: 2px;
+    text-align: left;
+}
+.wishlistTable td {
+    border: solid 1px #999;
+    padding: 2px;
+    text-align: left;
+}
+.wishlistTable .cellId {
+    width: 30px;
+}
+.wishlistTable .cellName {
+    width: 150px;
+}
+.wishlistTable .cellName input {
+    width: 150px;
+}
+.wishlistTable .cellCustomerId {
+    width: 100px;
+}
+.wishlistTable .cellCustomerId input {
+    width: 100px;
+}
+.wishlistTable .cellAction {
+    display: flex;
+}
+.udResult {
+    margin-top: 10px;
+}
+.udpResult {
+    margin-top: 10px;
+}
+.udpResult.success, .result.success, .udResult.success {
+    background-color: #caffda;
+}
+.udpResult.error, .result.error, .udResult.error {
+    background-color: #ffcaca;
+    color: #d00000;
+}
+.readResult, .searchResult {
+    margin-top: 10px;
+}

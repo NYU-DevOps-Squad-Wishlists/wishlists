@@ -21,7 +21,7 @@ class App extends React.Component {
       data: {}
     }
     axios(options).then((resp) => {
-      this.setState({ wishlists: resp.data });
+      this.setState({ wishlists: resp.data.sort((a, b) => a.id > b.id ? 1 : -1) });
     });
   }
   sendRequest(path, method, data = {}, callback) {
@@ -33,18 +33,28 @@ class App extends React.Component {
       },
       data,
     }
+    console.log(options);
     axios(options).then((resp) => {
-      console.log(resp);
+      console.log('xhr success');
       callback(resp);
+    }).catch((err) => {
+      console.log('xhr error');
+      callback(err.response);
     });
+
   }
 
   render() {
     console.log('rendering App', this.state);
-    return <>
-      <WishlistForm wishlists={this.state.wishlists} app={this} />
-      <ItemForm wishlists={this.state.wishlists} app={this} />
-    </>;
+    return <div className="formColumns">
+      <div className="column wishlists">
+        <WishlistForm wishlists={this.state.wishlists} app={this} />
+      </div>
+      <div className="column middle"></div>
+      <div className="column items">
+        <ItemForm wishlists={this.state.wishlists} app={this} />
+      </div>
+    </div>;
   }
 }
 

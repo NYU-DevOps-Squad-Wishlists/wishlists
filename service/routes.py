@@ -133,6 +133,19 @@ def create_items(wishlist_id):
         jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
     )
 
+@app.route("/wishlists/<int:wishlist_id>/items", methods=["GET"])
+def get_all_items(wishlist_id):
+    app.logger.info("Request for all items on wishlist_id %s", wishlist_id)
+    items = Item.find_by_wishlist_id(wishlist_id)
+    app.logger.info(items)
+    if not items:
+        base = "Item with wishlist_id '{}' found."
+        message = base.format(wishlist_id)
+        raise NotFound(message)
+
+    app.logger.info("Returning items")
+    results = [item.serialize() for item in items.all()]
+    return make_response(jsonify(results), status.HTTP_200_OK)
 
 @app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", methods=["GET"])
 def get_items(wishlist_id, item_id):
