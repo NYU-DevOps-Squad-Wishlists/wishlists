@@ -29,7 +29,6 @@ behave==1.2.6
 selenium==3.141.0
 compare==0.2b0
 requests==2.25.1
-chromedriver-py==92.0.4515.43
 
 # Code coverage
 coverage==4.5.4
