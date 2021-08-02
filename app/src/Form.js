@@ -80,7 +80,12 @@ class WishlistForm extends React.Component {
   }
   updateCallback(resp) {
     this.app.getWishlists();
-    this.setState({wishlistResult: "Wishlist updated successfully", wishlistResultClassName: 'success'});
+    this.setState({
+        wishlistResult: "Wishlist updated successfully",
+        wishlistResultClassName: 'success',
+        wishlistResultStatus: 'Transaction complete',
+        wishlistResponseCode: resp.status
+    });
   }
   delete(e, index) {
     e.preventDefault();
@@ -94,28 +99,40 @@ class WishlistForm extends React.Component {
   }
   deleteCallback(resp) {
     this.app.getWishlists();
-    this.setState({wishlistResult: "Wishlist deleted successfully", wishlistResultClassName: 'success'});
+    this.setState({
+        wishlistResult: "Wishlist deleted successfully",
+        wishlistResultClassName: 'success',
+        wishlistResultStatus: 'Transaction complete',
+        wishlistResponseCode: resp.status
+    });
   }
   read(e) {
-    e.preventDefault();
-    this.app.sendRequest(`/wishlists`, 'GET', {
-    }, this.readCallback);
-    return false;
+      e.preventDefault();
+      console.log('sending read request');
+      this.app.sendRequest(`/wishlists`, 'GET', {
+      }, this.readCallback);
+      return false;
   }
   readCallback(resp) {
     let res = '';
     let table = '';
     if (resp.data && resp.data.length) {
-      table = <table className="wishlistTable"><tr><th>ID</th><th>Name</th><th>Customer ID</th></tr>
-          {resp.data.sort((a, b) => a.id - b.id).map((wishlist, index) => {
-              return <tr key={'wishlist ' + wishlist.id}><td className="cellId">{wishlist.id}</td><td className="cellName">{wishlist.name}</td><td className="cellCustomerId">{wishlist.customer_id}</td></tr>;
-          })}
-      </table>;
-      res = "Wishlists printed below";
+        table = <table className="wishlistTable"><tr><th>ID</th><th>Name</th><th>Customer ID</th></tr>
+            {resp.data.sort((a, b) => a.id - b.id).map((wishlist, index) => {
+                return <tr className="dataRow" key={'wishlist ' + wishlist.id}><td className="cellId">{wishlist.id}</td><td className="cellName">{wishlist.name}</td><td className="cellCustomerId">{wishlist.customer_id}</td></tr>;
+            })}
+            </table>;
+        res = "Wishlists printed below";
     } else {
         res = "No wishlists exist";
     }
-    this.setState({readTable: table, wishlistResult: res, wishlistResultClassName: 'success'});
+    this.setState({
+        readTable: table,
+        wishlistResult: res,
+        wishlistResultClassName: 'success',
+        wishlistResultStatus: 'Transaction complete',
+        wishlistResponseCode: resp.status
+    });
   }
   search(e) {
     e.preventDefault();
@@ -125,18 +142,24 @@ class WishlistForm extends React.Component {
   }
   searchCallback(resp) {
     let res = '';
-      let table = '';
+    let table = '';
     if (resp.data && resp.data.length) {
-      table = <table className="wishlistTable"><tr><th>ID</th><th>Name</th><th>Customer ID</th></tr>
-          {resp.data.sort((a, b) => a.id - b.id).map((wishlist, index) => {
-              return <tr key="wishlist{wishlist.id}"><td className="cellId">{wishlist.id}</td><td className="cellName">{wishlist.name}</td><td className="cellCustomerId">{wishlist.customer_id}</td></tr>;
-          })}
-      </table>;
+        table = <table className="wishlistTable"><tr><th>ID</th><th>Name</th><th>Customer ID</th></tr>
+            {resp.data.sort((a, b) => a.id - b.id).map((wishlist, index) => {
+                return <tr className="dataRow" key="wishlist{wishlist.id}"><td className="cellId">{wishlist.id}</td><td className="cellName">{wishlist.name}</td><td className="cellCustomerId">{wishlist.customer_id}</td></tr>;
+            })}
+        </table>;
         res = 'Search results below';
     } else {
         res = "No wishlists exist with that Customer ID";
     }
-    this.setState({searchTable: table, wishlistResult: res, wishlistResultClassName: 'success'});
+    this.setState({
+        searchTable: table,
+        wishlistResult: res,
+        wishlistResultClassName: 'success',
+        wishlistResultStatus: 'Transaction complete',
+        wishlistResponseCode: resp.status
+    });
   }
 
   render() {
@@ -155,11 +178,11 @@ class WishlistForm extends React.Component {
             <th>Action</th>
         </tr>
         {this.props.wishlists.map((wishlist, index) => {
-          return <tr key={'wishlist_' + wishlist.id}>
+          return <tr className="dataRow" key={'wishlist_' + wishlist.id}>
             <td className="cellId"><input type="hidden" id={'wishlist_id_'+index} value={wishlist.id} />{wishlist.id}</td>
             <td className="cellName"><input type="text" id={'wishlist_name_'+index} defaultValue={wishlist.name} /></td>
             <td className="cellCustomerId"><input type="text" id={'wishlist_customer_id_'+index} defaultValue={wishlist.customer_id} /></td>
-            <td className="cellAction"><button id={'wishlist_update_'+wishlist.id} onClick={(e) => this.update(e, index)}>Update Wishlist</button> <button id={'wishlist_delete_'+wishlist.id} onClick={(e) => this.delete(e, index)}>Delete Wishlist</button></td>
+            <td className="cellAction"><button id={'wishlist_update_'+index} onClick={(e) => this.update(e, index)}>Update Wishlist</button> <button id={'wishlist_delete_'+index} onClick={(e) => this.delete(e, index)}>Delete Wishlist</button></td>
           </tr>;
         })}
       </table></div>
@@ -211,7 +234,7 @@ class WishlistForm extends React.Component {
               <div className="button"><button id="wishlist_search" onClick={this.search}>Search Wishlists</button></div>
             </div>
           </div>
-          <div className="searchTable">{this.state.searchTable}</div>
+          <div className="searchTable" id="wishlist_search_table">{this.state.searchTable}</div>
         </div>
         <div className="instructions">{modifyInstructions}</div>
         {modifyTable}
@@ -234,7 +257,7 @@ class ItemForm extends React.Component {
     this.readCallback = this.readCallback.bind(this);
     this.update = this.update.bind(this);
     this.updateCallback = this.updateCallback.bind(this);
-    this.delete = this.delete.bind(this);
+    this.odelete = this.delete.bind(this);
     this.deleteCallback = this.deleteCallback.bind(this);
     this.purchase = this.purchase.bind(this);
     this.purchaseCallback = this.purchaseCallback.bind(this);
@@ -316,7 +339,7 @@ class ItemForm extends React.Component {
       const items = resp.data.sort((a, b) => a.id - b.id);
       table = <table className="wishlistTable"><tr><th>ID</th><th>Name</th><th>Purchased</th></tr>
           {items.map((item, index) => {
-              return <tr key={'item_' + item.id}><td className="cellId">{item.id}</td><td className="cellName">{item.name}</td><td className="cellPurchased">{item.purchased.toString()}</td></tr>;
+              return <tr className="dataRow" key={'item_' + item.id}><td className="cellId">{item.id}</td><td className="cellName">{item.name}</td><td className="cellPurchased">{item.purchased.toString()}</td></tr>;
           })}
       </table>;
       res = 'Items listed below';
@@ -464,7 +487,7 @@ class ItemForm extends React.Component {
               <th>Action</th>
             </tr>
             {this.state.current_items.map((item, index) => {
-              return <tr key={'item ' + item.id}>
+              return <tr className="dataRow" key={'item ' + item.id}>
                 <td className="cellId"><input type="hidden" id={'item_id_'+item.id} value={item.id} />{item.id}</td>
                 <td className="cellName"><input type="text" id={'item_name_'+item.id} defaultValue={item.name} /></td>
                 <td className="cellPurchased">{item.purchased.toString()}</td>

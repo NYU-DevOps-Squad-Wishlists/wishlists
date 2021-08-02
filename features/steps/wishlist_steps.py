@@ -6,7 +6,11 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 
 buttonDictionary = {
-        "Create Wishlist": "wishlist_create"
+        "Create Wishlist": "wishlist_create",
+        "Read Wishlists": "wishlist_read",
+        "Search Wishlists": "wishlist_search",
+        "Update Wishlist": "wishlist_update_0",
+        "Delete Wishlist": "wishlist_delete_0"
 }
 
 WAIT_SECONDS = int(getenv('WAIT_SECONDS', '3'))
@@ -59,7 +63,9 @@ def step_impl(context, button):
                "Status: Transaction complete"
            )
         )
+        actions.reset_actions()
     finally:
+        print('Timeout encountered, browser console logs:')
         for entry in context.driver.get_log('browser'):
             print(entry)
 
@@ -74,3 +80,25 @@ def step_impl(context, code, element_id):
     response = "Response code: " + code
     assert response in element.text
 
+@then('the table "{table_id}" should contain at least one row')
+def step_impl(context, table_id):
+    table = context.driver.find_element_by_id(table_id)
+    html = table.get_attribute("innerHTML")
+    assert "<tr class=\"dataRow\">" in html
+
+@when('I enter "{search_string}" in the "{search_field}" input field')
+def step_impl(context, search_string, search_field):
+    search_input = context.driver.find_element_by_id(search_field)
+    search_input.clear()
+    search_input.send_keys(search_string)
+
+@when('I change "{input_id}" to "{new_value}"')
+def step_impl(context, input_id, new_value):
+    input_element = context.driver.find_element_by_id(input_id)
+    input_element.clear()
+    input_element.send_keys(new_value)
+
+@then('I should see "{value}" in "{input_id}"')
+def step_impl(context, value, input_id):
+    input_element = context.driver.find_element_by_id(input_id)
+    assert value in input_element.get_attribute('value')

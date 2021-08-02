@@ -12,36 +12,35 @@ class App extends React.Component {
   }
 
   getWishlists() {
-    const options = {
-      url: window.document.location.host + '/wishlists,
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      data: {}
-    }
-    axios(options).then((resp) => {
-      this.setState({ wishlists: resp.data.sort((a, b) => a.id > b.id ? 1 : -1) });
-    });
+      const options = {
+          url: 'http://' + window.document.location.host + '/wishlists',
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          data: {}
+      }
+      axios(options).then((resp) => {
+          this.setState({ wishlists: resp.data.sort((a, b) => a.id > b.id ? 1 : -1) });
+      });
   }
   sendRequest(path, method, data = {}, callback) {
-    const options = {
-      url: window.document.location.host + path,
-      method,
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      data,
-    }
-    console.log(options);
-    axios(options).then((resp) => {
-      console.log('xhr success');
-      callback(resp);
-    }).catch((err) => {
-      console.log('xhr error');
-      callback(err.response);
-    });
-
+      const options = {
+          url: 'http://' + window.document.location.host + path,
+          method,
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          data,
+      }
+      console.log(options);
+      axios(options).then((resp) => {
+          console.log('xhr success');
+          callback(resp);
+      }).catch((err) => {
+          console.log('xhr error');
+          callback(err.response);
+      });
   }
 
   render() {
