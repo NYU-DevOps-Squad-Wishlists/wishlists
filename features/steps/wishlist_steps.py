@@ -6,7 +6,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 
 buttonDictionary = {
-        "Create Wishlist": "wishlist_create"
+        "Create Wishlist": "wishlist_create",
+        "Read Wishlists": "wishlist_read"
 }
 
 WAIT_SECONDS = int(getenv('WAIT_SECONDS', '3'))
@@ -59,7 +60,9 @@ def step_impl(context, button):
                "Status: Transaction complete"
            )
         )
+        actions.reset_actions()
     finally:
+        print('Timeout encountered, browser console logs:')
         for entry in context.driver.get_log('browser'):
             print(entry)
 
@@ -74,3 +77,8 @@ def step_impl(context, code, element_id):
     response = "Response code: " + code
     assert response in element.text
 
+@then('the table "{table_id}" should contain at least one row')
+def step_impl(context, table_id):
+    table = context.driver.find_element_by_id(table_id)
+    html = table.get_attribute("innerHTML")
+    assert "<tr class=\"dataRow\">" in html
