@@ -41,3 +41,7 @@ Feature: The Wishlists REST API back-end
         And I should see "Etsy Wishlist" in "wishlist_name_0"
         And I should see "456" in "wishlist_customer_id_0"
 
+    Scenario: Delete a Wishlist
+        When I press the button "Delete Wishlist"
+        Then I should see the message "Wishlist deleted successfully" in "wishlist_result"
+        And the server response code should be "204" in "wishlist_response_code"
