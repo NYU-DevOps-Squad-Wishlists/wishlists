@@ -234,7 +234,7 @@ class WishlistForm extends React.Component {
               <div className="button"><button id="wishlist_search" onClick={this.search}>Search Wishlists</button></div>
             </div>
           </div>
-          <div className="searchTable">{this.state.searchTable}</div>
+          <div className="searchTable" id="wishlist_search_table">{this.state.searchTable}</div>
         </div>
         <div className="instructions">{modifyInstructions}</div>
         {modifyTable}

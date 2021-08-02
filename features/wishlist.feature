@@ -25,3 +25,10 @@ Feature: The Wishlists REST API back-end
         Then I should see the message "Wishlists printed below" in "wishlist_result"
         And the table "wishlist_read_table" should contain at least one row
         And the server response code should be "200" in "wishlist_response_code"
+
+    Scenario: Search Wishlists
+        When I enter "123" in the "search_customer_id" input field
+        And I press the button "Search Wishlists"
+        Then I should see the message "Search results below" in "wishlist_result"
+        And the table "wishlist_search_table" should contain at least one row
+        And the server response code should be "200" in "wishlist_response_code"

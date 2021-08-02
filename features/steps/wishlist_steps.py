@@ -7,7 +7,8 @@ from selenium.webdriver.support import expected_conditions
 
 buttonDictionary = {
         "Create Wishlist": "wishlist_create",
-        "Read Wishlists": "wishlist_read"
+        "Read Wishlists": "wishlist_read",
+        "Search Wishlists": "wishlist_search"
 }
 
 WAIT_SECONDS = int(getenv('WAIT_SECONDS', '3'))
@@ -82,3 +83,9 @@ def step_impl(context, table_id):
     table = context.driver.find_element_by_id(table_id)
     html = table.get_attribute("innerHTML")
     assert "<tr class=\"dataRow\">" in html
+
+@when('I enter "{search_string}" in the "{search_field}" input field')
+def step_impl(context, search_string, search_field):
+    search_input = context.driver.find_element_by_id(search_field)
+    search_input.clear()
+    search_input.send_keys(search_string)
