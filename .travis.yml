@@ -31,8 +31,8 @@ jobs:
         - LATEST_CHROMEDRIVER_VERSION=`curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE"`
         - curl "https://chromedriver.storage.googleapis.com/${LATEST_CHROMEDRIVER_VERSION}/chromedriver_linux64.zip" -O
         - unzip chromedriver_linux64.zip -d ~/bin
-        - gunicorn --log-level=critical --bind=127.0.0.1:8080 service:app &  # start a Web server in the background
+        - gunicorn --log-level=critical --bind=127.0.0.1:5000 service:app &  # start a Web server in the background
         - sleep 5  # give web server some time to bind to sockets, etc
-        - curl -I http://localhost:8080/  # make sure the service is up
+        - curl -I http://localhost:5000/  # make sure the service is up
       script:
         - behave

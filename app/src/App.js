@@ -13,7 +13,7 @@ class App extends React.Component {
 
   getWishlists() {
     const options = {
-      url: `http://127.0.0.1:5000/wishlists`,
+      url: window.document.location.host + '/wishlists,
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -26,7 +26,7 @@ class App extends React.Component {
   }
   sendRequest(path, method, data = {}, callback) {
     const options = {
-      url: `http://127.0.0.1:5000${path}`,
+      url: window.document.location.host + path,
       method,
       headers: {
         'Content-Type': 'application/json'
