@@ -8,7 +8,9 @@ from selenium.webdriver.support import expected_conditions
 buttonDictionary = {
         "Create Wishlist": "wishlist_create",
         "Read Wishlists": "wishlist_read",
-        "Search Wishlists": "wishlist_search"
+        "Search Wishlists": "wishlist_search",
+        "Update Wishlist": "wishlist_update_0",
+        "Delete Wishlist": "wishlist_delete_0"
 }
 
 WAIT_SECONDS = int(getenv('WAIT_SECONDS', '3'))
@@ -89,3 +91,14 @@ def step_impl(context, search_string, search_field):
     search_input = context.driver.find_element_by_id(search_field)
     search_input.clear()
     search_input.send_keys(search_string)
+
+@when('I change "{input_id}" to "{new_value}"')
+def step_impl(context, input_id, new_value):
+    input_element = context.driver.find_element_by_id(input_id)
+    input_element.clear()
+    input_element.send_keys(new_value)
+
+@then('I should see "{value}" in "{input_id}"')
+def step_impl(context, value, input_id):
+    input_element = context.driver.find_element_by_id(input_id)
+    assert value in input_element.get_attribute('value')

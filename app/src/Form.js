@@ -182,7 +182,7 @@ class WishlistForm extends React.Component {
             <td className="cellId"><input type="hidden" id={'wishlist_id_'+index} value={wishlist.id} />{wishlist.id}</td>
             <td className="cellName"><input type="text" id={'wishlist_name_'+index} defaultValue={wishlist.name} /></td>
             <td className="cellCustomerId"><input type="text" id={'wishlist_customer_id_'+index} defaultValue={wishlist.customer_id} /></td>
-            <td className="cellAction"><button id={'wishlist_update_'+wishlist.id} onClick={(e) => this.update(e, index)}>Update Wishlist</button> <button id={'wishlist_delete_'+wishlist.id} onClick={(e) => this.delete(e, index)}>Delete Wishlist</button></td>
+            <td className="cellAction"><button id={'wishlist_update_'+index} onClick={(e) => this.update(e, index)}>Update Wishlist</button> <button id={'wishlist_delete_'+index} onClick={(e) => this.delete(e, index)}>Delete Wishlist</button></td>
           </tr>;
         })}
       </table></div>
@@ -257,7 +257,7 @@ class ItemForm extends React.Component {
     this.readCallback = this.readCallback.bind(this);
     this.update = this.update.bind(this);
     this.updateCallback = this.updateCallback.bind(this);
-    this.delete = this.delete.bind(this);
+    this.odelete = this.delete.bind(this);
     this.deleteCallback = this.deleteCallback.bind(this);
     this.purchase = this.purchase.bind(this);
     this.purchaseCallback = this.purchaseCallback.bind(this);

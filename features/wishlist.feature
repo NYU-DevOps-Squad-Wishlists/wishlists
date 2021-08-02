@@ -32,3 +32,12 @@ Feature: The Wishlists REST API back-end
         Then I should see the message "Search results below" in "wishlist_result"
         And the table "wishlist_search_table" should contain at least one row
         And the server response code should be "200" in "wishlist_response_code"
+
+    Scenario: Update a Wishlist
+        When I change "wishlist_name_0" to "Etsy Wishlist"
+        And I change "wishlist_customer_id_0" to "456"
+        And I press the button "Update Wishlist"
+        Then I should see the message "Wishlist updated successfully" in "wishlist_result"
+        And I should see "Etsy Wishlist" in "wishlist_name_0"
+        And I should see "456" in "wishlist_customer_id_0"
+
