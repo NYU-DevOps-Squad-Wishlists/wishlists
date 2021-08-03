@@ -447,7 +447,7 @@ class ItemForm extends React.Component {
             <div className="inputContainer">
               <label for="wishlist_id">Wishlist:</label>
               <div className="input">
-                <select onChange={this.wishlistChange} name="wishlist_id"><option value="">-- select a Wishlist --</option>{this.props.wishlists.map((wishlist) => <option value={wishlist.id}>{wishlist.name}</option>)}</select>
+                <select onChange={this.wishlistChange} name="wishlist_id" id="wishlist_selector"><option value="">-- select a Wishlist --</option>{this.props.wishlists.map((wishlist) => <option value={wishlist.id}>{wishlist.name}</option>)}</select>
               </div>
             </div>
           </div>

@@ -1,7 +1,7 @@
-Feature: The Wishlists REST API back-end
+Feature: The Wishlists REST API for Wishlists
     As a Wishlists Owner
     I need a RESTful wishlist service
-    So that I can keep track of all the wishlists and their items
+    So that I can keep track of all the wishlists
 
     Scenario: The server is running
         When I visit the "Home Page"
