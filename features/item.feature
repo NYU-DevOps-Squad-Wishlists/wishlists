@@ -15,8 +15,8 @@ Feature: The Wishlists REST API for Items
         And I should see "Test Wishlist" as an option in "wishlist_selector"
 
     Scenario: Add a new Item to a specific Wishlist
-        When I select the Wishlist "Birthday Wishlist"
+        When I select the Wishlist "Birthday Wishlist" from "wishlist_selector"
         And I add a new Item with name "Laptop"
-        And I press the button "Add Item"
+        And I press the button "Add Item" in the "Item" form
         Then I should see the message "Item added successfully!" in "item_result"
         And the server response code should be "201" in "item_response_code"
