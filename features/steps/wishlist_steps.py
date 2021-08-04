@@ -5,13 +5,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 
-buttonDictionary = {
-        "Create Wishlist": "wishlist_create",
-        "Read Wishlists": "wishlist_read",
-        "Search Wishlists": "wishlist_search",
-        "Update Wishlist": "wishlist_update_0",
-        "Delete Wishlist": "wishlist_delete_0"
-}
 
 WAIT_SECONDS = int(getenv('WAIT_SECONDS', '3'))
 
@@ -49,56 +42,15 @@ def step_impl(context):
     # print('customer_id: (' + customer_id_input.get_attribute('value') + ')')
     customer_id_input.send_keys("")
 
-@when('I press the button "{button}"')
-def step_impl(context, button):
-    button_element = context.driver.find_element_by_id(buttonDictionary[button])
-    actions = ActionChains(context.driver)
-    actions.move_to_element(button_element)
-    actions.click(button_element)
-    actions.perform()
-    try:
-        WebDriverWait(context.driver, WAIT_SECONDS).until(
-           expected_conditions.text_to_be_present_in_element(
-               (By.ID, "wishlist_result_status"),
-               "Status: Transaction complete"
-           )
-        )
-        actions.reset_actions()
-    finally:
-        print('Timeout encountered, browser console logs:')
-        for entry in context.driver.get_log('browser'):
-            print(entry)
+@when('I enter an existing Wishlist ID into the "{input_id}" input field')
+def step_impl(context, input_id):
+    # get the ID out of the first row of this list table
+    # this will ensure we don't rely on ID "1" existing
+    list_table = context.driver.find_element_by_id("wishlist_list_table")
+    rows = list_table.find_elements(By.TAG_NAME, 'tr')
+    cells = rows[1].find_elements(By.TAG_NAME, 'td')
+    wishlist_id = cells[0].text
 
-@then('I should see the message "{message}" in "{element_id}"')
-def step_impl(context, message, element_id):
-    element = context.driver.find_element_by_id(element_id)
-    assert message in element.text
-
-@then('the server response code should be "{code}" in "{element_id}"')
-def step_impl(context, code, element_id):
-    element = context.driver.find_element_by_id(element_id)
-    response = "Response code: " + code
-    assert response in element.text
-
-@then('the table "{table_id}" should contain at least one row')
-def step_impl(context, table_id):
-    table = context.driver.find_element_by_id(table_id)
-    html = table.get_attribute("innerHTML")
-    assert "<tr class=\"dataRow\">" in html
-
-@when('I enter "{search_string}" in the "{search_field}" input field')
-def step_impl(context, search_string, search_field):
-    search_input = context.driver.find_element_by_id(search_field)
-    search_input.clear()
-    search_input.send_keys(search_string)
-
-@when('I change "{input_id}" to "{new_value}"')
-def step_impl(context, input_id, new_value):
-    input_element = context.driver.find_element_by_id(input_id)
-    input_element.clear()
-    input_element.send_keys(new_value)
-
-@then('I should see "{value}" in "{input_id}"')
-def step_impl(context, value, input_id):
-    input_element = context.driver.find_element_by_id(input_id)
-    assert value in input_element.get_attribute('value')
+    id_field = context.driver.find_element_by_id(input_id)
+    id_field.clear()
+    id_field.send_keys(wishlist_id)

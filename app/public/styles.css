@@ -1,6 +1,7 @@
 body {
     font-family: Roboto, Helvetica, sans-serif;
     padding: 20px;
+    font-weight: 300;
 }
 h1 {
 }
@@ -10,14 +11,18 @@ h2 {
 }
 .formColumns {
     display: grid;
-    grid-template-columns: 1fr 20px 1fr;
+    grid-template-columns: 1fr 75px 1fr;
 }
 .formColumns .column.middle {
     background-color: #ccc;
-    margin: 0 9px;
+    margin: 0 35px;
 }
 .instructions {
     padding-bottom: 10px;
+}
+.resultInstructions {
+    padding-bottom: 5px;
+    font-style: italic;
 }
 .form-container {
     border-style: solid;
@@ -52,12 +57,14 @@ h2 {
 .wishlistTable th {
     border: solid 1px #666;
     padding: 2px;
+    font-weight: 500;
     text-align: left;
 }
 .wishlistTable td {
     border: solid 1px #999;
     padding: 2px;
     text-align: left;
+    font-weight: 300;
 }
 .wishlistTable .cellId {
     width: 30px;
@@ -82,18 +89,44 @@ h2 {
     border: solid 1px #999;
     height: 50px;
 }
-.result.success {
+.resultText.success {
     background-color: #caffda;
 }
-.result.error {
+.resultText.error {
     background-color: #ffcaca;
     color: #d00000;
 }
-.readTable, .searchTable {
+.readTable, .searchTable, .listTable {
     margin-top: 10px;
 }
 .resultBox {
-    border: solid 1px #999;
+    border: solid 2px #999;
     padding: 5px;
     margin-bottom: 30px;
+}
+.resultItem {
+    display: flex;
+    padding: 0 0 6px 0;
+}
+.resultLabel {
+    width: 150px;
+}
+.resultText {
+}
+button {
+    font-family: Roboto, Helvetica, sans-serif;
+    padding: 5px 10px;
+    background-color: #cff;
+    margin: 0;
+    font-size: 14px;
+    overflow: visible;
+    border: solid 1px #577;
+}
+button:active {
+    border-color: #f00;
+    background-color: #ccc;
+}
+.selected {
+    color: #c000ff;
+    font-weight: 500;
 }

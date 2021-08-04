@@ -17,6 +17,8 @@ class WishlistForm extends React.Component {
     this.deleteCallback = this.deleteCallback.bind(this);
     this.read = this.read.bind(this);
     this.readCallback = this.readCallback.bind(this);
+    this.list = this.list.bind(this);
+    this.listCallback = this.listCallback.bind(this);
     this.search = this.search.bind(this);
     this.searchCallback = this.searchCallback.bind(this);
     this.handleWishlistNameChange = this.handleWishlistNameChange.bind(this);
@@ -106,14 +108,42 @@ class WishlistForm extends React.Component {
         wishlistResponseCode: resp.status
     });
   }
-  read(e) {
+    read(e) {
       e.preventDefault();
-      console.log('sending read request');
-      this.app.sendRequest(`/wishlists`, 'GET', {
+      // extract the wishlist_id
+      const wishlist_id = document.getElementById(`wishlist_read_id`).value;
+      console.log(`sending read request for ${wishlist_id}`);
+      this.app.sendRequest(`/wishlists/${wishlist_id}`, 'GET', {
       }, this.readCallback);
       return false;
+    }
+    readCallback(resp) {
+        let res = '';
+        let table = '';
+        if (resp.data && resp.status === 200) {
+            table = <table className="wishlistTable"><tr><th>ID</th><th>Name</th><th>Customer ID</th></tr>
+                    <tr className="dataRow"><td className="cellId">{resp.data.id}</td><td className="cellName">{resp.data.name}</td><td className="cellCustomerId">{resp.data.customer_id}</td></tr>
+                    </table>;
+            res = "Wishlist printed below";
+        } else {
+            res = "No wishlist with that ID found";
+        }
+        this.setState({
+            readTable: table,
+            wishlistResult: res,
+            wishlistResultClassName: 'success',
+            wishlistResultStatus: 'Transaction complete',
+            wishlistResponseCode: resp.status
+        });
+    }
+  list(e) {
+      e.preventDefault();
+      console.log('sending list request');
+      this.app.sendRequest(`/wishlists`, 'GET', {
+      }, this.listCallback);
+      return false;
   }
-  readCallback(resp) {
+  listCallback(resp) {
     let res = '';
     let table = '';
     if (resp.data && resp.data.length) {
@@ -127,7 +157,7 @@ class WishlistForm extends React.Component {
         res = "No wishlists exist";
     }
     this.setState({
-        readTable: table,
+        listTable: table,
         wishlistResult: res,
         wishlistResultClassName: 'success',
         wishlistResultStatus: 'Transaction complete',
@@ -165,7 +195,7 @@ class WishlistForm extends React.Component {
   render() {
     const wishlistExists = this.props.wishlists && this.props.wishlists.length;
     const modifyInstructions = wishlistExists ?
-          "Update or delete an existing wishlist below." :
+          "<strong>UPDATE</strong> or <strong>DELETE</strong> an existing wishlist below." :
           "Add a wishlist to run update and delete operations.";
   
     let modifyTable;
@@ -189,15 +219,24 @@ class WishlistForm extends React.Component {
     }
     return <>
         <div className="form-container">
-          <h2>Wishlists</h2>
-          <div className="resultInstructions">The box below will display the result of the transaction (success or errors).</div>
+          <h1>Wishlists</h1>
+          <div className="resultInstructions">The box below will display the result of each transaction you run.</div>
           <div className="resultBox">
-            <div className="resultStatus" id="wishlist_result_status">Status: {this.state.wishlistResultStatus}</div>
-            <div className="responseCode" id="wishlist_response_code">Response code: {this.state.wishlistResponseCode}</div>
-            <div className={"result " + this.state.wishlistResultClassName} id="wishlist_result">{this.state.wishlistResult}</div>
+            <div className="resultItem">
+              <div className="resultLabel">Status:</div>
+              <div className="resultText" id="wishlist_result_status">{this.state.wishlistResultStatus}</div>
+            </div>
+            <div className="resultItem">
+              <div className="resultLabel">Response code:</div>
+              <div className="resultText" id="wishlist_response_code">{this.state.wishlistResponseCode}</div>
+            </div>
+            <div className="resultItem">
+              <div className="resultLabel">Message:</div>
+              <div className={"resultText " + this.state.wishlistResultClassName} id="wishlist_result">{this.state.wishlistResult}</div>
+            </div>
             <button id="wishlist_result_clear" onClick={this.clearResult}>Clear Result</button>
           </div>
-          <div className="instructions">Create a new wishlist below.</div>
+          <div className="instructions"><strong>CREATE</strong> a new wishlist below.</div>
           <div className="form">
             <div className="inputContainer">
               <label for="wishlist_name">Name:</label>
@@ -211,18 +250,30 @@ class WishlistForm extends React.Component {
                 <input type="text" name="customer_id" id="customer_id" onChange={this.handleCustomerIdChange} />
               </div>
             </div>
-            <div className="submitResult">
-              <div className="button"><button id="wishlist_create" onClick={this.create}>Create Wishlist</button></div>
-            </div>
+            <div className="button"><button id="wishlist_create" onClick={this.create}>Create Wishlist</button></div>
           </div>
         </div>
+
         <div className="form-container">
-          <div className="instructions">Click the button below to read all Wishlists.</div>
-          <button id="wishlist_read" onClick={this.read}>Read Wishlists</button>
+          <div className="instructions">Click the button below to <strong>LIST</strong> all Wishlists.</div>
+          <button id="wishlist_list" onClick={this.list}>List Wishlists</button>
+          <div className="listTable" id="wishlist_list_table">{this.state.listTable}</div>
+        </div>
+
+        <div className="form-container">
+          <div className="instructions"><strong>READ</strong> a single Wishlist by ID below.</div>
+          <div className="inputContainer">
+            <label for="wishlist_read_id">Wishlist ID:</label>
+            <div className="item">
+              <input type="text" name="wishlist_read_id" id="wishlist_read_id" />
+            </div>
+          </div>
+          <button id="wishlist_read" onClick={this.read}>Read Wishlist</button>
           <div className="readTable" id="wishlist_read_table">{this.state.readTable}</div>
         </div>
+
         <div className="form-container">
-          <div className="instructions">Search for wishlists by Customer ID.</div>
+          <div className="instructions"><strong>QUERY</strong> wishlists by Customer ID.</div>
           <div className="form">
             <div className="inputContainer">
               <label for="wishlist_name">Customer ID:</label>
@@ -230,13 +281,11 @@ class WishlistForm extends React.Component {
                 <input type="text" name="search_customer_id" id="search_customer_id" />
               </div>
             </div>
-            <div className="submitResult">
-              <div className="button"><button id="wishlist_search" onClick={this.search}>Search Wishlists</button></div>
-            </div>
+            <div className="button"><button id="wishlist_search" onClick={this.search}>Search Wishlists</button></div>
           </div>
           <div className="searchTable" id="wishlist_search_table">{this.state.searchTable}</div>
         </div>
-        <div className="instructions">{modifyInstructions}</div>
+        <div className="instructions" dangerouslySetInnerHTML={{__html: modifyInstructions}}></div>
         {modifyTable}
     </>
   }
@@ -355,9 +404,9 @@ class ItemForm extends React.Component {
         readTable: table
     });
   }
-  update(e, item_id) {
+  update(e, index, item_id) {
     e.preventDefault();
-    const new_name = document.getElementById(`item_name_${item_id}`).value;
+    const new_name = document.getElementById(`item_name_${index}`).value;
     this.app.sendRequest(`${this.currentBasePath()}/items/${item_id}`, 'PUT', {
         wishlist_id: this.state.current_wishlist.id,
         name: new_name
@@ -447,7 +496,7 @@ class ItemForm extends React.Component {
             <div className="inputContainer">
               <label for="wishlist_id">Wishlist:</label>
               <div className="input">
-                <select onChange={this.wishlistChange} name="wishlist_id"><option value="">-- select a Wishlist --</option>{this.props.wishlists.map((wishlist) => <option value={wishlist.id}>{wishlist.name}</option>)}</select>
+                <select onChange={this.wishlistChange} name="wishlist_id" id="wishlist_selector"><option value="">-- select a Wishlist --</option>{this.props.wishlists.map((wishlist) => <option value={wishlist.id}>{wishlist.name}</option>)}</select>
               </div>
             </div>
           </div>
@@ -456,7 +505,7 @@ class ItemForm extends React.Component {
 
       if ( this.state.current_wishlist ) {
         html = <><div className="form-container">
-          <div className="instructions">Add an item to the <strong>{this.state.current_wishlist.name}</strong> wishlist below.</div>
+          <div className="instructions"><strong>CREATE</strong> an item to the <span className="selected">{this.state.current_wishlist.name}</span> wishlist below.</div>
           <div className="form">
             <div className="inputContainer">
               <label for="item_name">Item Name:</label>
@@ -464,22 +513,20 @@ class ItemForm extends React.Component {
                 <input type="text" name="item_name" id="item_name" onChange={this.handleItemNameChange} />
               </div>
             </div>
-            <div className="submitResult">
-              <div className="button"><button id="item_create" onClick={this.create}>Add Item</button></div>
-            </div>
+            <div className="button"><button id="item_create" onClick={this.create}>Add Item</button></div>
           </div>
         </div>
         <div className="form-container">
-          <div className="instructions">Read items on the <strong>{this.state.current_wishlist.name}</strong> wishlist below.</div>
+          <div className="instructions"><strong>LIST</strong> items on the <span className="selected">{this.state.current_wishlist.name}</span> wishlist below.</div>
           <button id="item_read" onClick={this.read}>Read Items</button>
           <div className="readTable" id="item_read_table">{this.state.readTable}</div>
         </div>
         </>;
 
         if ( this.state.current_items && this.state.current_items.length ) {
-          modifyInstructions = 'Update, delete or purchase an item on this wishlist below.';
+          modifyInstructions = '<strong>UPDATE</strong>, <strong>DELETE</strong> or <strong>PURCHASE (ACTION)</strong> an item on this wishlist below.';
           modifyTable = <>
-          <div className="form-container"><table className="wishlistTable">
+          <div className="form-container"><table className="wishlistTable" id="item_table">
             <tr>
               <th>ID</th>
               <th>Name</th>
@@ -488,10 +535,10 @@ class ItemForm extends React.Component {
             </tr>
             {this.state.current_items.map((item, index) => {
               return <tr className="dataRow" key={'item ' + item.id}>
-                <td className="cellId"><input type="hidden" id={'item_id_'+item.id} value={item.id} />{item.id}</td>
-                <td className="cellName"><input type="text" id={'item_name_'+item.id} defaultValue={item.name} /></td>
+                <td className="cellId"><input type="hidden" id={'item_id_'+index} value={item.id} />{item.id}</td>
+                <td className="cellName"><input type="text" id={'item_name_'+index} defaultValue={item.name} /></td>
                 <td className="cellPurchased">{item.purchased.toString()}</td>
-                <td className="cellAction"><button id={'item_update_'+item.id} onClick={(e) => this.update(e, item.id)}>Update Item</button> <button id={'item_delete_'+item.id} onClick={(e) => this.delete(e, item.id)}>Delete Item</button> <button id={'item_purchase_'+item.id} onClick={(e) => this.purchase(e, item.id)}>Purchase Item</button></td>
+                <td className="cellAction"><button id={'item_update_'+index} onClick={(e) => this.update(e, index, item.id)}>Update Item</button> <button id={'item_delete_'+index} onClick={(e) => this.delete(e, item.id)}>Delete Item</button> <button id={'item_purchase_'+index} onClick={(e) => this.purchase(e, item.id)}>Purchase Item</button></td>
               </tr>;
             })}
           </table></div></>;
@@ -501,17 +548,26 @@ class ItemForm extends React.Component {
       }
     }
     return <>
-          <h2>Items</h2>
-          <div className="resultInstructions">The box below will display the result of the transaction (success or errors).</div>
+          <h1>Items</h1>
+          <div className="resultInstructions">The box below will display the result of each transaction you run.</div>
           <div className="resultBox">
-            <div className="resultStatus" id="item_result_status">Status: {this.state.itemResultStatus}</div>
-            <div className="responseCode" id="item_response_code">Response code: {this.state.itemResponseCode}</div>
-            <div className={"result " + this.state.itemResultClassName} id="item_result">{this.state.itemResult}</div>
+            <div className="resultItem">
+              <div className="resultLabel">Status:</div>
+              <div className="resultText" id="item_result_status">{this.state.itemResultStatus}</div>
+            </div>
+            <div className="resultItem">
+              <div className="resultLabel">Response code:</div>
+              <div className="resultText" id="item_response_code">{this.state.itemResponseCode}</div>
+            </div>
+            <div className="resultItem">
+              <div className="resultLabel">Message:</div>
+              <div className={"resultText " + this.state.itemResultClassName} id="item_result">{this.state.itemResult}</div>
+            </div>
             <button id="item_result_clear" onClick={this.clearResult}>Clear Result</button>
           </div>
           {wishlistSelector}
           {html}
-          <div className="instructions">{modifyInstructions}</div>
+          <div className="instructions" dangerouslySetInnerHTML={{__html: modifyInstructions}}></div>
           {modifyTable}
           <div className={'udpResult ' + this.state.udpClassName} id="udpResult_item">{this.state.udpResult}</div>
     </>;
