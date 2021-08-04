@@ -21,10 +21,17 @@ Feature: The Wishlists REST API for Wishlists
         And the server response code should be "201" in "wishlist_response_code"
 
     Scenario: List all Wishlists
-        When I press the button "Read Wishlists" in the "Wishlist" form
+        When I press the button "List Wishlists" in the "Wishlist" form
         Then I should see the message "Wishlists printed below" in "wishlist_result"
-        And the table "wishlist_read_table" should contain at least one row
+        And the table "wishlist_list_table" should contain at least one row
         And the server response code should be "200" in "wishlist_response_code"
+
+    Scenario: Read a Wishlist
+        When I enter an existing Wishlist ID into the "wishlist_read_id" input field
+        And I press the button "Read Wishlist" in the "Wishlist" form
+        Then I should see the message "Wishlist printed below" in "wishlist_result"
+        And the server response code should be "200" in "wishlist_response_code"
+        And the table "wishlist_read_table" should contain at least one row
 
     Scenario: Search Wishlists
         When I enter "123" in the "search_customer_id" input field

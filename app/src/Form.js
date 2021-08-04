@@ -17,6 +17,8 @@ class WishlistForm extends React.Component {
     this.deleteCallback = this.deleteCallback.bind(this);
     this.read = this.read.bind(this);
     this.readCallback = this.readCallback.bind(this);
+    this.list = this.list.bind(this);
+    this.listCallback = this.listCallback.bind(this);
     this.search = this.search.bind(this);
     this.searchCallback = this.searchCallback.bind(this);
     this.handleWishlistNameChange = this.handleWishlistNameChange.bind(this);
@@ -106,14 +108,42 @@ class WishlistForm extends React.Component {
         wishlistResponseCode: resp.status
     });
   }
-  read(e) {
+    read(e) {
       e.preventDefault();
-      console.log('sending read request');
-      this.app.sendRequest(`/wishlists`, 'GET', {
+      // extract the wishlist_id
+      const wishlist_id = document.getElementById(`wishlist_read_id`).value;
+      console.log(`sending read request for ${wishlist_id}`);
+      this.app.sendRequest(`/wishlists/${wishlist_id}`, 'GET', {
       }, this.readCallback);
       return false;
+    }
+    readCallback(resp) {
+        let res = '';
+        let table = '';
+        if (resp.data && resp.status === 200) {
+            table = <table className="wishlistTable"><tr><th>ID</th><th>Name</th><th>Customer ID</th></tr>
+                    <tr className="dataRow"><td className="cellId">{resp.data.id}</td><td className="cellName">{resp.data.name}</td><td className="cellCustomerId">{resp.data.customer_id}</td></tr>
+                    </table>;
+            res = "Wishlist printed below";
+        } else {
+            res = "No wishlist with that ID found";
+        }
+        this.setState({
+            readTable: table,
+            wishlistResult: res,
+            wishlistResultClassName: 'success',
+            wishlistResultStatus: 'Transaction complete',
+            wishlistResponseCode: resp.status
+        });
+    }
+  list(e) {
+      e.preventDefault();
+      console.log('sending list request');
+      this.app.sendRequest(`/wishlists`, 'GET', {
+      }, this.listCallback);
+      return false;
   }
-  readCallback(resp) {
+  listCallback(resp) {
     let res = '';
     let table = '';
     if (resp.data && resp.data.length) {
@@ -127,7 +157,7 @@ class WishlistForm extends React.Component {
         res = "No wishlists exist";
     }
     this.setState({
-        readTable: table,
+        listTable: table,
         wishlistResult: res,
         wishlistResultClassName: 'success',
         wishlistResultStatus: 'Transaction complete',
@@ -216,11 +246,25 @@ class WishlistForm extends React.Component {
             </div>
           </div>
         </div>
+
         <div className="form-container">
-          <div className="instructions">Click the button below to read all Wishlists.</div>
-          <button id="wishlist_read" onClick={this.read}>Read Wishlists</button>
+          <div className="instructions">Click the button below to List all Wishlists.</div>
+          <button id="wishlist_list" onClick={this.list}>List Wishlists</button>
+          <div className="listTable" id="wishlist_list_table">{this.state.listTable}</div>
+        </div>
+
+        <div className="form-container">
+          <div className="instructions">Read a single Wishlist by ID below.</div>
+          <div className="inputContainer">
+            <label for="wishlist_read_id">Wishlist ID:</label>
+            <div className="item">
+              <input type="text" name="wishlist_read_id" id="wishlist_read_id" />
+            </div>
+          </div>
+          <button id="wishlist_read" onClick={this.read}>Read Wishlist</button>
           <div className="readTable" id="wishlist_read_table">{this.state.readTable}</div>
         </div>
+
         <div className="form-container">
           <div className="instructions">Search for wishlists by Customer ID.</div>
           <div className="form">

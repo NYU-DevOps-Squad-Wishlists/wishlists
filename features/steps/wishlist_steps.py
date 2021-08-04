@@ -42,3 +42,15 @@ def step_impl(context):
     # print('customer_id: (' + customer_id_input.get_attribute('value') + ')')
     customer_id_input.send_keys("")
 
+@when('I enter an existing Wishlist ID into the "{input_id}" input field')
+def step_impl(context, input_id):
+    # get the ID out of the first row of this list table
+    # this will ensure we don't rely on ID "1" existing
+    list_table = context.driver.find_element_by_id("wishlist_list_table")
+    rows = list_table.find_elements(By.TAG_NAME, 'tr')
+    cells = rows[1].find_elements(By.TAG_NAME, 'td')
+    wishlist_id = cells[0].text
+
+    id_field = context.driver.find_element_by_id(input_id)
+    id_field.clear()
+    id_field.send_keys(wishlist_id)

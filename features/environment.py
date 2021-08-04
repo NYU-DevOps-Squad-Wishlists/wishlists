@@ -78,7 +78,8 @@ def after_scenario(context, scenario):
 
 buttonDictionary = {
         "Create Wishlist": "wishlist_create",
-        "Read Wishlists": "wishlist_read",
+        "List Wishlists": "wishlist_list",
+        "Read Wishlist": "wishlist_read",
         "Search Wishlists": "wishlist_search",
         "Update Wishlist": "wishlist_update_0",
         "Delete Wishlist": "wishlist_delete_0",
