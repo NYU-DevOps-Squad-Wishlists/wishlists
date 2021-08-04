@@ -399,9 +399,9 @@ class ItemForm extends React.Component {
         readTable: table
     });
   }
-  update(e, item_id) {
+  update(e, index, item_id) {
     e.preventDefault();
-    const new_name = document.getElementById(`item_name_${item_id}`).value;
+    const new_name = document.getElementById(`item_name_${index}`).value;
     this.app.sendRequest(`${this.currentBasePath()}/items/${item_id}`, 'PUT', {
         wishlist_id: this.state.current_wishlist.id,
         name: new_name
@@ -532,10 +532,10 @@ class ItemForm extends React.Component {
             </tr>
             {this.state.current_items.map((item, index) => {
               return <tr className="dataRow" key={'item ' + item.id}>
-                <td className="cellId"><input type="hidden" id={'item_id_'+item.id} value={item.id} />{item.id}</td>
-                <td className="cellName"><input type="text" id={'item_name_'+item.id} defaultValue={item.name} /></td>
+                <td className="cellId"><input type="hidden" id={'item_id_'+index} value={item.id} />{item.id}</td>
+                <td className="cellName"><input type="text" id={'item_name_'+index} defaultValue={item.name} /></td>
                 <td className="cellPurchased">{item.purchased.toString()}</td>
-                <td className="cellAction"><button id={'item_update_'+item.id} onClick={(e) => this.update(e, item.id)}>Update Item</button> <button id={'item_delete_'+item.id} onClick={(e) => this.delete(e, item.id)}>Delete Item</button> <button id={'item_purchase_'+item.id} onClick={(e) => this.purchase(e, item.id)}>Purchase Item</button></td>
+                <td className="cellAction"><button id={'item_update_'+index} onClick={(e) => this.update(e, index, item.id)}>Update Item</button> <button id={'item_delete_'+index} onClick={(e) => this.delete(e, item.id)}>Delete Item</button> <button id={'item_purchase_'+index} onClick={(e) => this.purchase(e, item.id)}>Purchase Item</button></td>
               </tr>;
             })}
           </table></div></>;

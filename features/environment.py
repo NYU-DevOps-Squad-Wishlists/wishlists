@@ -83,7 +83,10 @@ buttonDictionary = {
         "Search Wishlists": "wishlist_search",
         "Update Wishlist": "wishlist_update_0",
         "Delete Wishlist": "wishlist_delete_0",
-        "Add Item": "item_create"
+        "Add Item": "item_create",
+        "Update Item": "item_update_0",
+        "Delete Item": "item_delete_0",
+        "Purchase Item": "item_purchase_0"
 }
 
 @when('I press the button "{button}" in the "{type}" form')

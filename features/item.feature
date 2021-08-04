@@ -20,3 +20,10 @@ Feature: The Wishlists REST API for Items
         And I press the button "Add Item" in the "Item" form
         Then I should see the message "Item added successfully!" in "item_result"
         And the server response code should be "201" in "item_response_code"
+
+    Scenario: Edit an Item on a specific Wishlist
+        When I change "item_name_0" to "Blueberries"
+        And I press the button "Update Item" in the "Item" form
+        Then I should see the message "Item updated successfully" in "item_result"
+        And I should see "Blueberries" in "item_name_0"
+        And the server response code should be "200" in "item_response_code"
