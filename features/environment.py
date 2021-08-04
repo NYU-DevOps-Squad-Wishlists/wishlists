@@ -56,7 +56,7 @@ def after_scenario(context, scenario):
     WebDriverWait(context.driver, WAIT_SECONDS).until(
            expected_conditions.text_to_be_present_in_element(
                (By.ID, "wishlist_result_status"),
-               "Status: Awaiting next action"
+               "Awaiting next action"
            )
     )
 
@@ -69,7 +69,7 @@ def after_scenario(context, scenario):
     WebDriverWait(context.driver, WAIT_SECONDS).until(
            expected_conditions.text_to_be_present_in_element(
                (By.ID, "item_result_status"),
-               "Status: Awaiting next action"
+               "Awaiting next action"
            )
     )
 
@@ -101,7 +101,7 @@ def step_impl(context, button, type):
         WebDriverWait(context.driver, WAIT_SECONDS).until(
            expected_conditions.text_to_be_present_in_element(
                (By.ID, result_field),
-               "Status: Transaction complete"
+               "Transaction complete"
            )
         )
         actions.reset_actions()
@@ -118,8 +118,7 @@ def step_impl(context, message, element_id):
 @then('the server response code should be "{code}" in "{element_id}"')
 def step_impl(context, code, element_id):
     element = context.driver.find_element_by_id(element_id)
-    response = "Response code: " + code
-    assert response in element.text
+    assert code in element.text
 
 @then('the table "{table_id}" should contain at least one row')
 def step_impl(context, table_id):

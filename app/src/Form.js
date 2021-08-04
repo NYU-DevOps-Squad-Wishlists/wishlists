@@ -195,7 +195,7 @@ class WishlistForm extends React.Component {
   render() {
     const wishlistExists = this.props.wishlists && this.props.wishlists.length;
     const modifyInstructions = wishlistExists ?
-          "Update or delete an existing wishlist below." :
+          "<strong>UPDATE</strong> or <strong>DELETE</strong> an existing wishlist below." :
           "Add a wishlist to run update and delete operations.";
   
     let modifyTable;
@@ -219,15 +219,24 @@ class WishlistForm extends React.Component {
     }
     return <>
         <div className="form-container">
-          <h2>Wishlists</h2>
-          <div className="resultInstructions">The box below will display the result of the transaction (success or errors).</div>
+          <h1>Wishlists</h1>
+          <div className="resultInstructions">The box below will display the result of each transaction you run.</div>
           <div className="resultBox">
-            <div className="resultStatus" id="wishlist_result_status">Status: {this.state.wishlistResultStatus}</div>
-            <div className="responseCode" id="wishlist_response_code">Response code: {this.state.wishlistResponseCode}</div>
-            <div className={"result " + this.state.wishlistResultClassName} id="wishlist_result">{this.state.wishlistResult}</div>
+            <div className="resultItem">
+              <div className="resultLabel">Status:</div>
+              <div className="resultText" id="wishlist_result_status">{this.state.wishlistResultStatus}</div>
+            </div>
+            <div className="resultItem">
+              <div className="resultLabel">Response code:</div>
+              <div className="resultText" id="wishlist_response_code">{this.state.wishlistResponseCode}</div>
+            </div>
+            <div className="resultItem">
+              <div className="resultLabel">Message:</div>
+              <div className={"resultText " + this.state.wishlistResultClassName} id="wishlist_result">{this.state.wishlistResult}</div>
+            </div>
             <button id="wishlist_result_clear" onClick={this.clearResult}>Clear Result</button>
           </div>
-          <div className="instructions">Create a new wishlist below.</div>
+          <div className="instructions"><strong>CREATE</strong> a new wishlist below.</div>
           <div className="form">
             <div className="inputContainer">
               <label for="wishlist_name">Name:</label>
@@ -241,20 +250,18 @@ class WishlistForm extends React.Component {
                 <input type="text" name="customer_id" id="customer_id" onChange={this.handleCustomerIdChange} />
               </div>
             </div>
-            <div className="submitResult">
-              <div className="button"><button id="wishlist_create" onClick={this.create}>Create Wishlist</button></div>
-            </div>
+            <div className="button"><button id="wishlist_create" onClick={this.create}>Create Wishlist</button></div>
           </div>
         </div>
 
         <div className="form-container">
-          <div className="instructions">Click the button below to List all Wishlists.</div>
+          <div className="instructions">Click the button below to <strong>LIST</strong> all Wishlists.</div>
           <button id="wishlist_list" onClick={this.list}>List Wishlists</button>
           <div className="listTable" id="wishlist_list_table">{this.state.listTable}</div>
         </div>
 
         <div className="form-container">
-          <div className="instructions">Read a single Wishlist by ID below.</div>
+          <div className="instructions"><strong>READ</strong> a single Wishlist by ID below.</div>
           <div className="inputContainer">
             <label for="wishlist_read_id">Wishlist ID:</label>
             <div className="item">
@@ -266,7 +273,7 @@ class WishlistForm extends React.Component {
         </div>
 
         <div className="form-container">
-          <div className="instructions">Search for wishlists by Customer ID.</div>
+          <div className="instructions"><strong>QUERY</strong> wishlists by Customer ID.</div>
           <div className="form">
             <div className="inputContainer">
               <label for="wishlist_name">Customer ID:</label>
@@ -274,13 +281,11 @@ class WishlistForm extends React.Component {
                 <input type="text" name="search_customer_id" id="search_customer_id" />
               </div>
             </div>
-            <div className="submitResult">
-              <div className="button"><button id="wishlist_search" onClick={this.search}>Search Wishlists</button></div>
-            </div>
+            <div className="button"><button id="wishlist_search" onClick={this.search}>Search Wishlists</button></div>
           </div>
           <div className="searchTable" id="wishlist_search_table">{this.state.searchTable}</div>
         </div>
-        <div className="instructions">{modifyInstructions}</div>
+        <div className="instructions" dangerouslySetInnerHTML={{__html: modifyInstructions}}></div>
         {modifyTable}
     </>
   }
@@ -500,7 +505,7 @@ class ItemForm extends React.Component {
 
       if ( this.state.current_wishlist ) {
         html = <><div className="form-container">
-          <div className="instructions">Add an item to the <strong>{this.state.current_wishlist.name}</strong> wishlist below.</div>
+          <div className="instructions"><strong>CREATE</strong> an item to the <span className="selected">{this.state.current_wishlist.name}</span> wishlist below.</div>
           <div className="form">
             <div className="inputContainer">
               <label for="item_name">Item Name:</label>
@@ -508,20 +513,18 @@ class ItemForm extends React.Component {
                 <input type="text" name="item_name" id="item_name" onChange={this.handleItemNameChange} />
               </div>
             </div>
-            <div className="submitResult">
-              <div className="button"><button id="item_create" onClick={this.create}>Add Item</button></div>
-            </div>
+            <div className="button"><button id="item_create" onClick={this.create}>Add Item</button></div>
           </div>
         </div>
         <div className="form-container">
-          <div className="instructions">Read items on the <strong>{this.state.current_wishlist.name}</strong> wishlist below.</div>
+          <div className="instructions"><strong>LIST</strong> items on the <span className="selected">{this.state.current_wishlist.name}</span> wishlist below.</div>
           <button id="item_read" onClick={this.read}>Read Items</button>
           <div className="readTable" id="item_read_table">{this.state.readTable}</div>
         </div>
         </>;
 
         if ( this.state.current_items && this.state.current_items.length ) {
-          modifyInstructions = 'Update, delete or purchase an item on this wishlist below.';
+          modifyInstructions = '<strong>UPDATE</strong>, <strong>DELETE</strong> or <strong>PURCHASE (ACTION)</strong> an item on this wishlist below.';
           modifyTable = <>
           <div className="form-container"><table className="wishlistTable" id="item_table">
             <tr>
@@ -545,17 +548,26 @@ class ItemForm extends React.Component {
       }
     }
     return <>
-          <h2>Items</h2>
-          <div className="resultInstructions">The box below will display the result of the transaction (success or errors).</div>
+          <h1>Items</h1>
+          <div className="resultInstructions">The box below will display the result of each transaction you run.</div>
           <div className="resultBox">
-            <div className="resultStatus" id="item_result_status">Status: {this.state.itemResultStatus}</div>
-            <div className="responseCode" id="item_response_code">Response code: {this.state.itemResponseCode}</div>
-            <div className={"result " + this.state.itemResultClassName} id="item_result">{this.state.itemResult}</div>
+            <div className="resultItem">
+              <div className="resultLabel">Status:</div>
+              <div className="resultText" id="item_result_status">{this.state.itemResultStatus}</div>
+            </div>
+            <div className="resultItem">
+              <div className="resultLabel">Response code:</div>
+              <div className="resultText" id="item_response_code">{this.state.itemResponseCode}</div>
+            </div>
+            <div className="resultItem">
+              <div className="resultLabel">Message:</div>
+              <div className={"resultText " + this.state.itemResultClassName} id="item_result">{this.state.itemResult}</div>
+            </div>
             <button id="item_result_clear" onClick={this.clearResult}>Clear Result</button>
           </div>
           {wishlistSelector}
           {html}
-          <div className="instructions">{modifyInstructions}</div>
+          <div className="instructions" dangerouslySetInnerHTML={{__html: modifyInstructions}}></div>
           {modifyTable}
           <div className={'udpResult ' + this.state.udpClassName} id="udpResult_item">{this.state.udpResult}</div>
     </>;
