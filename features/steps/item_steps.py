@@ -37,3 +37,14 @@ def step_impl(context, name):
     name_input = context.driver.find_element_by_id("item_name")
     name_input.clear()
     name_input.send_keys(name)
+
+@then('the value of column "{column_name}" in "{table_id}" for row "{row_index}" should be "{value_test}"')
+def step_impl(context, column_name, table_id, row_index, value_test):
+    table = context.driver.find_element_by_id(table_id)
+    rows = table.find_elements(By.TAG_NAME, 'tr')
+    header_row = rows[0].find_elements(By.TAG_NAME, 'th')
+    column_header_text = list(map(lambda th: th.text, header_row))
+    column_index = int(column_header_text.index(column_name))
+    cells = rows[int(row_index)].find_elements(By.TAG_NAME, 'td')
+    target_cell = cells[column_index]
+    assert bool(target_cell.text) is bool(value_test)

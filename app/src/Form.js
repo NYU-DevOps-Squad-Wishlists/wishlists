@@ -523,7 +523,7 @@ class ItemForm extends React.Component {
         if ( this.state.current_items && this.state.current_items.length ) {
           modifyInstructions = 'Update, delete or purchase an item on this wishlist below.';
           modifyTable = <>
-          <div className="form-container"><table className="wishlistTable">
+          <div className="form-container"><table className="wishlistTable" id="item_table">
             <tr>
               <th>ID</th>
               <th>Name</th>
