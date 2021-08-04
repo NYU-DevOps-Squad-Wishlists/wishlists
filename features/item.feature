@@ -27,3 +27,8 @@ Feature: The Wishlists REST API for Items
         Then I should see the message "Item updated successfully" in "item_result"
         And I should see "Blueberries" in "item_name_0"
         And the server response code should be "200" in "item_response_code"
+
+    Scenario: Delete an Item on a specific Wishlist
+        When I press the button "Delete Item" in the "Item" form
+        Then I should see the message "Item deleted successfully" in "item_result"
+        And the server response code should be "204" in "item_response_code"
