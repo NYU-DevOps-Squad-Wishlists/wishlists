@@ -9,7 +9,7 @@ import logging
 from flask import Flask
 
 APP_NAME = "Wishlists API Service"
-VERSION = "0.1.0"
+VERSION = "0.5.0"
 
 # Create Flask application
 app = Flask(__name__)
