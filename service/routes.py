@@ -4,6 +4,7 @@ Wishlists Service
 """
 
 from flask import abort, jsonify, make_response, request, url_for, send_from_directory
+from flask_restx import Api, Resource, fields, reqparse, inputs
 from service import status  # HTTP Status Codes
 from service.models import Item, Wishlist
 
@@ -11,6 +12,42 @@ from service.models import Item, Wishlist
 from . import app, APP_NAME, VERSION
 from werkzeug.exceptions import NotFound
 
+# Document the type of autorization required
+authorizations = {
+    'apikey': {
+        'type': 'apiKey',
+        'in': 'header',
+        'name': 'X-Api-Key'
+    }
+}
+
+# configure swagger
+api = Api(app,
+          version='1.0.0',
+          title='Wishlist Demo REST API Service',
+          description='This is a sample Wishlist server.',
+          default='wishlists',
+          default_label='Wishlist operations',
+          doc='/apidocs', # default also could use doc='/apidocs/'
+          authorizations=authorizations,
+          prefix='/api'
+         )
+
+create_model = api.model('Wishlist', {
+    'name': fields.String(required=True,
+                          description='The name of the Wishlist'),
+    'customer_id': fields.String(required=True,
+                              description='The Customer ID of the wishlist owner'),
+})
+
+wishlist_model = api.inherit(
+    'WishlistModel',
+    create_model,
+    {
+        'id': fields.String(readOnly=True,
+                            description='The unique id assigned internally by service'),
+    }
+)
 
 @app.route("/")
 def index():
