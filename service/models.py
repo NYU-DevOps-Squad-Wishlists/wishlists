@@ -22,6 +22,7 @@ name (string) - the name of the wishlist
 wishlist_id (int) - the wishlist the item belongs to (i.e., 1, 2)
 
 """
+import os
 import logging
 from enum import Enum
 from flask_sqlalchemy import SQLAlchemy
