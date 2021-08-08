@@ -167,14 +167,6 @@ class TestWishlistModel(unittest.TestCase):
         self.assertEqual(wishlists[0].customer_id, 2)
         self.assertEqual(wishlists[0].name, "kitty")
 
-    def test_find_by_name(self):
-        """Find a Wishlist by Name"""
-        Wishlist(name="fido", customer_id=1).create()
-        Wishlist(name="kitty", customer_id=2).create()
-        wishlists = Wishlist.find_by_name("kitty")
-        self.assertEqual(wishlists[0].customer_id, 2)
-        self.assertEqual(wishlists[0].name, "kitty")
-
     def test_find_or_404_found(self):
         """Find or return 404 found"""
         wishlists = WishlistFactory.create_batch(3)

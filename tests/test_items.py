@@ -195,17 +195,7 @@ class TestItemModel(unittest.TestCase):
         self.assertEqual(items[0].name, "Huang")
         Item(name="DevOps", wishlist_id=2).create(2)
         items = Item.find_by_wishlist_id(2)
-        self.assertEqual(items.count(), 2)
-
-    def test_find_by_name(self):
-        """Find a Item by Name"""
-        Wishlist(name="fido", customer_id=1).create()
-        Wishlist(name="kitty", customer_id=2).create()
-        Item(name="Ziyi", wishlist_id=1).create(1)
-        Item(name="Huang", wishlist_id=2).create(2)
-        items = Item.find_by_name("Huang")
-        self.assertEqual(items[0].wishlist_id, 2)
-        self.assertEqual(items[0].name, "Huang")
+        self.assertEqual(len(items), 2)
 
     def test_find_or_404_found(self):
         """Find or return 404 found"""
