@@ -254,7 +254,6 @@ class Item(db.Model):
     def __repr__(self):
         return "<Item %r id=[%s]>" % (self.name, self.id)
 
-    @classmethod
     @retry(HTTPError, delay=RETRY_DELAY, backoff=RETRY_BACKOFF, tries=RETRY_COUNT, logger=logger)
     def create(self, wishlist_id):
         """
@@ -266,7 +265,6 @@ class Item(db.Model):
         db.session.add(self)
         db.session.commit()
 
-    @classmethod
     @retry(HTTPError, delay=RETRY_DELAY, backoff=RETRY_BACKOFF, tries=RETRY_COUNT, logger=logger)
     def update(self):
         """
@@ -277,7 +275,6 @@ class Item(db.Model):
             raise DataValidationError("Update called with empty ID field")
         db.session.commit()
 
-    @classmethod
     @retry(HTTPError, delay=RETRY_DELAY, backoff=RETRY_BACKOFF, tries=RETRY_COUNT, logger=logger)
     def delete(self):
         """Removes a Item from the data store"""
