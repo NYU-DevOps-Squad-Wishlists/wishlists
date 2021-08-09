@@ -2,6 +2,10 @@ import React from 'react';
 import { WishlistForm, ItemForm } from './Form';
 import axios from 'axios';
 
+function isEmpty(obj) {
+    return obj && Object.keys(obj).length === 0 && obj.constructor === Object;
+}
+
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -13,25 +17,23 @@ class App extends React.Component {
 
   getWishlists() {
       const options = {
-          url: window.location.protocol + '//' + window.document.location.host + '/wishlists',
-          method: 'GET',
-          headers: {
-              'Content-Type': 'application/json'
-          },
-          data: {}
+          url: window.location.protocol + '//' + window.document.location.host + '/api/wishlists',
+          method: 'GET'
       }
       axios(options).then((resp) => {
           this.setState({ wishlists: resp.data.sort((a, b) => a.id > b.id ? 1 : -1) });
       });
   }
-  sendRequest(path, method, data = {}, callback) {
+  sendRequest(path, method, data = undefined, callback) {
       const options = {
           url: window.location.protocol + '//' + window.document.location.host + path,
-          method,
-          headers: {
+          method
+      }
+      if ( !isEmpty(data) ) {
+          options.data = data;
+          options.headers = {
               'Content-Type': 'application/json'
-          },
-          data,
+          };
       }
       console.log(options);
       axios(options).then((resp) => {

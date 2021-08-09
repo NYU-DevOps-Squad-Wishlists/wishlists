@@ -16,6 +16,7 @@ def step_impl(context):
 @then('I should see the title "{message}"')
 def step_impl(context, message):
     """ Check the document title for a message """
+    print(context.driver.title)
     assert message in context.driver.title
 
 @then('I should not see the title "{message}"')

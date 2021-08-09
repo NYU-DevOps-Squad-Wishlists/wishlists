@@ -25,24 +25,25 @@ wishlist_id (int) - the wishlist the item belongs to (i.e., 1, 2)
 import logging
 from enum import Enum
 from flask_sqlalchemy import SQLAlchemy
-
-logger = logging.getLogger("flask.app")
+from . import app, APP_NAME, VERSION
 
 # Create the SQLAlchemy object to be initialized later in init_db()
 db = SQLAlchemy()
+
+
+class DatabaseConnectionError(Exception):
+    """Custom Exception when database connection fails"""
+    pass
+
+class DataValidationError(Exception):
+    """Used for an data validation errors when deserializing"""
+    pass
 
 
 def init_db(app):
     """Initialies the SQLAlchemy app"""
     Wishlist.init_db(app)
     Item.init_db(app)
-
-
-class DataValidationError(Exception):
-    """Used for an data validation errors when deserializing"""
-
-    pass
-
 
 class Wishlist(db.Model):
     """
@@ -76,7 +77,7 @@ class Wishlist(db.Model):
         """
         Creates a Wishlist to the database
         """
-        logger.info("Creating %s", self.name)
+        app.logger.info("Creating %s", self.name)
         self.id = None  # id must be none to generate next primary key
         db.session.add(self)
         db.session.commit()
@@ -85,14 +86,14 @@ class Wishlist(db.Model):
         """
         Updates a Wishlist to the database
         """
-        logger.info("Saving %s", self.name)
+        app.logger.info("Saving %s", self.name)
         if not self.id:
             raise DataValidationError("Update called with empty ID field")
         db.session.commit()
 
     def delete(self):
         """Removes a Wishlist from the data store"""
-        logger.info("Deleting %s", self.name)
+        app.logger.info("Deleting %s", self.name)
         db.session.delete(self)
         db.session.commit()
 
@@ -138,7 +139,7 @@ class Wishlist(db.Model):
         :type data: Flask
 
         """
-        logger.info("Initializing database")
+        app.logger.info("Initializing database")
         cls.app = app
         # This is where we initialize SQLAlchemy from the Flask app
         db.init_app(app)
@@ -148,7 +149,7 @@ class Wishlist(db.Model):
     @classmethod
     def all(cls):
         """Returns all of the Wishlists in the database"""
-        logger.info("Processing all Wishlists")
+        app.logger.info("Processing all Wishlists")
         return cls.query.all()
 
     @classmethod
@@ -162,7 +163,7 @@ class Wishlist(db.Model):
         :rtype: Wishlist
 
         """
-        logger.info("Processing lookup for id %s ...", wishlist_id)
+        app.logger.info("Processing lookup for id %s ...", wishlist_id)
         return cls.query.get(wishlist_id)
 
     @classmethod
@@ -176,22 +177,8 @@ class Wishlist(db.Model):
         :rtype: Wishlist
 
         """
-        logger.info("Processing lookup or 404 for id %s ...", wishlist_id)
+        app.logger.info("Processing lookup or 404 for id %s ...", wishlist_id)
         return cls.query.get_or_404(wishlist_id)
-
-    @classmethod
-    def find_by_name(cls, name):
-        """Returns all Wishlists with the given name
-
-        :param name: the name of the Wishlists you want to match
-        :type name: str
-
-        :return: a collection of Wishlists with that name
-        :rtype: list
-
-        """
-        logger.info("Processing name query for %s ...", name)
-        return cls.query.filter(cls.name == name)
 
     @classmethod
     def find_by_customer_id(cls, customer_id):
@@ -204,8 +191,8 @@ class Wishlist(db.Model):
         :rtype: list
 
         """
-        logger.info("Processing customer_id query for %s ...", customer_id)
-        return cls.query.filter(cls.customer_id == customer_id)
+        app.logger.info("Processing customer_id query for %s ...", customer_id)
+        return cls.query.filter(cls.customer_id == customer_id).all()
 
 
 class Item(db.Model):
@@ -239,7 +226,7 @@ class Item(db.Model):
         """
         Creates a Item to the database
         """
-        logger.info("Creating %s", self.name)
+        app.logger.info("Creating %s", self.name)
         self.id = None  # id must be none to generate next primary key
         self.wishlist_id = wishlist_id
         db.session.add(self)
@@ -249,14 +236,14 @@ class Item(db.Model):
         """
         Updates a Item to the database
         """
-        logger.info("Saving %s", self.name)
+        app.logger.info("Saving %s", self.name)
         if not self.id:
             raise DataValidationError("Update called with empty ID field")
         db.session.commit()
 
     def delete(self):
         """Removes a Item from the data store"""
-        logger.info("Deleting %s", self.name)
+        app.logger.info("Deleting %s", self.name)
         db.session.delete(self)
         db.session.commit()
 
@@ -304,7 +291,7 @@ class Item(db.Model):
         :type data: Flask
 
         """
-        logger.info("Initializing database")
+        app.logger.info("Initializing database")
         cls.app = app
         # This is where we initialize SQLAlchemy from the Flask app
         db.init_app(app)
@@ -314,7 +301,7 @@ class Item(db.Model):
     @classmethod
     def all(cls):
         """Returns all of the Items in the database"""
-        logger.info("Processing all Items")
+        app.logger.info("Processing all Items")
         return cls.query.all()
 
     @classmethod
@@ -328,7 +315,7 @@ class Item(db.Model):
         :rtype: Item
 
         """
-        logger.info("Processing lookup for id %s ...", item_id)
+        app.logger.info("Processing lookup for id %s ...", item_id)
         return cls.query.get(item_id)
 
     @classmethod
@@ -342,22 +329,8 @@ class Item(db.Model):
         :rtype: Item
 
         """
-        logger.info("Processing lookup or 404 for id %s ...", item_id)
+        app.logger.info("Processing lookup or 404 for id %s ...", item_id)
         return cls.query.get_or_404(item_id)
-
-    @classmethod
-    def find_by_name(cls, name):
-        """Returns all Items with the given name
-
-        :param name: the name of the Items you want to match
-        :type name: str
-
-        :return: a collection of Items with that name
-        :rtype: list
-
-        """
-        logger.info("Processing name query for %s ...", name)
-        return cls.query.filter(cls.name == name)
 
     @classmethod
     def find_by_wishlist_id(cls, wishlist_id):
@@ -370,10 +343,10 @@ class Item(db.Model):
         :rtype: list
 
         """
-        logger.info("Processing wishlist_id query for %s ...", wishlist_id)
-        return cls.query.filter(cls.wishlist_id == wishlist_id)
+        app.logger.info("Processing wishlist_id query for %s ...", wishlist_id)
+        return cls.query.filter(cls.wishlist_id == wishlist_id).all()
 
     @classmethod
     def get_by_wishlist_id_and_item_id(cls, wishlist_id, item_id):
-        logger.info("Processing wishlist_id/item_id query for %s/%s ...", wishlist_id, item_id)
+        app.logger.info("Processing wishlist_id/item_id query for %s/%s ...", wishlist_id, item_id)
         return cls.query.filter_by(wishlist_id=wishlist_id, id=item_id).first()
