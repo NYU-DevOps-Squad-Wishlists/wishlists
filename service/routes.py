@@ -15,15 +15,6 @@ from service.models import Item, Wishlist, DataValidationError, DatabaseConnecti
 from . import app, APP_NAME, VERSION
 from werkzeug.exceptions import NotFound
 
-# Document the type of autorization required
-authorizations = {
-    'apikey': {
-        'type': 'apiKey',
-        'in': 'header',
-        'name': 'X-Api-Key'
-    }
-}
-
 ######################################################################
 # Main index route before we define the API
 ######################################################################
@@ -48,7 +39,6 @@ api = Api(app,
           default='wishlists',
           default_label='Wishlist operations',
           doc='/apidocs', # default also could use doc='/apidocs/'
-          authorizations=authorizations,
           prefix='/api'
          )
 
@@ -114,32 +104,6 @@ def database_connection_error(error):
     }, status.HTTP_503_SERVICE_UNAVAILABLE
 
 ######################################################################
-# Authorization Decorator
-######################################################################
-def token_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        token = None
-        if 'X-Api-Key' in request.headers:
-            token = request.headers['X-Api-Key']
-
-        # print("X-Api-Key: '{}', API_KEY in config: '{}'".format(token, app.config['API_KEY']))
-        if app.config.get('API_KEY') and app.config['API_KEY'] == token:
-            return f(*args, **kwargs)
-        else:
-            return {'message': 'Invalid or missing token'}, 401
-    return decorated
-
-
-######################################################################
-# Function to generate a random API key (good for testing)
-######################################################################
-def generate_apikey():
-    """ Helper function used when testing API keys """
-    return uuid.uuid4().hex
-
-
-######################################################################
 #  PATH: /wishlists/{id}
 ######################################################################
 @api.route('/wishlists/<wishlist_id>')
@@ -185,7 +149,6 @@ class WishlistResource(Resource):
     @api.response(400, 'The posted Wishlist data was not valid')
     @api.expect(wishlist_model)
     @api.marshal_with(wishlist_model)
-    @token_required
     def put(self, wishlist_id):
         """
         Update a Wishlist
@@ -209,7 +172,6 @@ class WishlistResource(Resource):
     #------------------------------------------------------------------
     @api.doc('delete_wishlists', security='apikey')
     @api.response(204, 'Wishlist deleted')
-    @token_required
     def delete(self, wishlist_id):
         """
         Delete a Wishlist
@@ -263,7 +225,6 @@ class WishlistCollection(Resource):
     @api.response(400, 'The posted data was not valid')
     @api.expect(create_wishlist_model)
     @api.marshal_with(wishlist_model, code=201)
-    @token_required
     def post(self):
         """
         Creates a Wishlist
@@ -283,7 +244,6 @@ class WishlistCollection(Resource):
     #------------------------------------------------------------------
     @api.doc('delete_all_wishlists', security='apikey')
     @api.response(204, 'All Wishlists deleted')
-    @token_required
     def delete(self):
         """
         Delete all Wishlists and Items
@@ -362,7 +322,6 @@ class ItemResource(Resource):
     @api.response(400, 'The posted Item data was not valid')
     @api.expect(item_model)
     @api.marshal_with(item_model)
-    @token_required
     def put(self, wishlist_id, item_id):
         """
         Update an Item
@@ -391,7 +350,6 @@ class ItemResource(Resource):
     #------------------------------------------------------------------
     @api.doc('delete_items', security='apikey')
     @api.response(204, 'Item deleted')
-    @token_required
     def delete(self, wishlist_id, item_id):
         """
         Delete an Item
@@ -444,7 +402,6 @@ class ItemCollection(Resource):
     @api.response(400, 'The posted data was not valid')
     @api.expect(create_item_model)
     @api.marshal_with(item_model, code=201)
-    @token_required
     def post(self, wishlist_id):
         """
         Creates an Item

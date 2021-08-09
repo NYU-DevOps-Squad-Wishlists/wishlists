@@ -5,7 +5,7 @@ from flask_api import status
 from factories import ItemFactory, WishlistFactory
 from service import APP_NAME, VERSION
 from service.models import db, init_db
-from service.routes import app, generate_apikey
+from service.routes import app
 
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/testdb"
@@ -16,6 +16,7 @@ CONTENT_TYPE_JSON = "application/json"
 
 
 class TestResourceServer(TestCase):
+    """Test Cases for Routes"""
 
     @classmethod
     def setUpClass(cls):
@@ -23,8 +24,6 @@ class TestResourceServer(TestCase):
         app.config["DEBUG"] = False
         # Set up the test database
         app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
-        api_key = generate_apikey()
-        app.config['API_KEY'] = api_key
         app.logger.setLevel(logging.CRITICAL)
         init_db(app)
 
@@ -35,7 +34,7 @@ class TestResourceServer(TestCase):
     def setUp(self):
         self.app = app.test_client()
         self.headers = {
-            'X-Api-Key': app.config['API_KEY']
+            'X-Nosetests': True
         }
         db.drop_all()
         db.create_all()
@@ -121,14 +120,6 @@ class TestResourceServer(TestCase):
         self.assertEqual(
             new_wishlist["customer_id"], test_wishlist.customer_id, "customer_ids do not match"
         )
-
-    def test_create_wishlist_no_token(self):
-        """Create a wishlist with no authorization token"""
-        test_wishlist = WishlistFactory()
-        resp = self.app.post(
-            BASE_URL, json=test_wishlist.serialize(), content_type=CONTENT_TYPE_JSON
-        )
-        self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_create_wishlist_no_data(self):
         """Create a wishlist with no data"""
@@ -454,7 +445,7 @@ class TestResourceServer(TestCase):
         )
         self.assertEqual(resp4.status_code, status.HTTP_404_NOT_FOUND)
 
-    def list_all_items_on_empty_wishlist(self):
+    def test_list_all_items_on_empty_wishlist(self):
         """List items on an empty Wishlist"""
         test_wishlist = WishlistFactory()
         resp = self.app.post(
@@ -468,9 +459,9 @@ class TestResourceServer(TestCase):
             headers=self.headers
         )
         self.assertEqual(resp2.status_code, status.HTTP_404_NOT_FOUND)
-        
 
     def test_query_wishlist_by_customer_id(self):
+        """Query wishlist by customer_id"""
         number_of_wishlists = 4
         wishlists = self._create_wishlists(number_of_wishlists)
         for i in range(number_of_wishlists):
@@ -483,10 +474,6 @@ class TestResourceServer(TestCase):
             self.assertEqual(len(data), 1)
             for wishlist in data:
                 self.assertEqual(wishlist["customer_id"], test_customer_id)
-
-    #def test_query_wishlist_by_invalid_customer_id(self):
-    #    resp = self.app.get(BASE_URL, query_string="customer_id=foo")
-    #    self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_delete_all(self):
         """Delete all Wishlists and Items"""
