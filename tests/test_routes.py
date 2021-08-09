@@ -25,7 +25,7 @@ class TestResourceServer(TestCase):
         app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
         api_key = generate_apikey()
         app.config['API_KEY'] = api_key
-        app.logger.setLevel(logging.NOTSET)
+        app.logger.setLevel(logging.CRITICAL)
         init_db(app)
 
     @classmethod
@@ -77,28 +77,36 @@ class TestResourceServer(TestCase):
             items.append(test_items)
         return items
 
-    def test_index_returns_OK_status(self):
-        response = self.app.get("/")
+    #def test_bad_db_connection(self):
+    #    db.session.remove()
+    #    test_wishlist = WishlistFactory()
+    #    resp = self.app.post(
+    #        BASE_URL, json=test_wishlist.serialize(), content_type=CONTENT_TYPE_JSON, headers=self.headers
+    #    )
+    #    self.assertEqual(resp.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
 
+    def test_index_returns_OK_status(self):
+        """Form UI shows on index route"""
+        response = self.app.get("/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_index_returns_service_information(self):
-        expected_result = {
-            "name": APP_NAME,
-            "resources": {},
-            "version": VERSION,
-            "url": "/",
-        }
+    def test_public_route(self):
+        """public folder serves static assets"""
+        response = self.app.get("/public/styles.css")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        response = self.app.get("/")
-
-        self.assertEqual(response.get_json(), expected_result)
+    def test_favicon(self):
+        """favicon.ico exists"""
+        response = self.app.get("/favicon.ico")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_list_wishlist(self):
+        """List all wishlists"""
         resp = self.app.get(BASE_URL)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
     def test_create_wishlist(self):
+        """Create a wishlist"""
         test_wishlist = WishlistFactory()
         resp = self.app.post(
             BASE_URL, json=test_wishlist.serialize(), content_type=CONTENT_TYPE_JSON, headers=self.headers
@@ -114,11 +122,21 @@ class TestResourceServer(TestCase):
             new_wishlist["customer_id"], test_wishlist.customer_id, "customer_ids do not match"
         )
 
+    def test_create_wishlist_no_token(self):
+        """Create a wishlist with no authorization token"""
+        test_wishlist = WishlistFactory()
+        resp = self.app.post(
+            BASE_URL, json=test_wishlist.serialize(), content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED)
+
     def test_create_wishlist_no_data(self):
+        """Create a wishlist with no data"""
         resp = self.app.post(BASE_URL, json={}, content_type=CONTENT_TYPE_JSON, headers=self.headers)
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_wishlist_no_content_type(self):
+        """Create a wishlist with an invalid Content-Type"""
         resp = self.app.post(BASE_URL, headers=self.headers)
         self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
@@ -159,7 +177,17 @@ class TestResourceServer(TestCase):
         updated_wishlist = resp.get_json()
         self.assertEqual(updated_wishlist["name"], "unknown")
 
+        # update a wishlist that doesn't exist
+        resp2 = self.app.put(
+            BASE_URL + "/999",
+            json=new_wishlist,
+            content_type=CONTENT_TYPE_JSON,
+            headers=self.headers
+        )
+        self.assertEqual(resp2.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_read_wishlist_item_success(self):
+        """Read a wishlist Item"""
         wishlist = WishlistFactory()
         wishlist.create()
         item = ItemFactory(wishlist_id=wishlist.id)
@@ -173,6 +201,7 @@ class TestResourceServer(TestCase):
         self.assertEqual(data["name"], item.name)
 
     def test_read_wishlist_item_wishlist_not_found(self):
+        """Read a wishlist Item on an invalid wishlist"""
         item = ItemFactory()
         url = "{}/999/items/{}".format(BASE_URL, item.id)
 
@@ -180,13 +209,22 @@ class TestResourceServer(TestCase):
 
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_read_wishlist_item_item_not_found(self):
+    def test_read_item_wishlist_found_item_not_found(self):
+        """Read an invalid item on a valid wishlist"""
         wishlist = WishlistFactory()
-        url = "{}/{}/items/999".format(BASE_URL, wishlist.id)
+        resp = self.app.post(
+            BASE_URL, json=wishlist.serialize(), content_type=CONTENT_TYPE_JSON, headers=self.headers
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        location = resp.headers.get("Location", None)
+        self.assertIsNotNone(location)
+        wishlist_json = resp.get_json()
 
-        resp = self.app.get(url)
-
-        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+        resp2 = self.app.get(
+            BASE_URL + '/{}/items/999'.format(wishlist_json['id']),
+            headers=self.headers
+        )
+        self.assertEqual(resp2.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_create_item(self):
         """Create a new Item"""
@@ -240,19 +278,50 @@ class TestResourceServer(TestCase):
         resp = self.app.post(ITEM_URL, json={}, content_type=CONTENT_TYPE_JSON, headers=self.headers)
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_create_item_on_invalid_wishlist(self):
+        """Create an Item on an invalid wishlist"""
+        test_wishlist = WishlistFactory()
+        logging.debug(test_wishlist)
+        test_item = ItemFactory(__sequence=1)
+        logging.debug(test_item)
+        resp = self.app.post(
+            BASE_URL, json=test_wishlist.serialize(), content_type=CONTENT_TYPE_JSON, headers=self.headers
+        )
+        resp2 = self.app.post(
+            ITEM_URL, json=test_item.serialize(), content_type=CONTENT_TYPE_JSON, headers=self.headers
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(resp2.status_code, status.HTTP_201_CREATED)
+
+        resp3 = self.app.post(
+            BASE_URL + '/999/items',
+            json=test_item.serialize(),
+            content_type=CONTENT_TYPE_JSON,
+            headers=self.headers
+        )
+        self.assertEqual(resp3.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_create_item_no_content_type(self):
         """Create a Item with no content type"""
         resp = self.app.post(ITEM_URL, headers=self.headers)
         self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
     def test_delete_item(self):
-        """Delete a Item"""
+        """Delete an Item"""
         test_item = self._create_items(1)[0]
         resp = self.app.delete(
             "{0}/{1}".format(ITEM_URL, test_item.id), content_type=CONTENT_TYPE_JSON, headers=self.headers
         )
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(len(resp.data), 0)
+
+    def test_delete_item_bad_wishlist(self):
+        """Delete an Item on a non-existent wishlist"""
+        resp = self.app.delete(
+            BASE_URL + "/999/items/1",
+            headers=self.headers
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_update_item(self):
         """Update an existing item"""
@@ -284,6 +353,24 @@ class TestResourceServer(TestCase):
         )
         self.assertEqual(resp3.status_code, status.HTTP_200_OK)
         updated_item = resp3.get_json()
+
+        # update item on non-existent wishlist
+        resp4 = self.app.put(
+            BASE_URL + "/999/items/1",
+            json=new_item,
+            content_type=CONTENT_TYPE_JSON,
+            headers=self.headers
+        )
+        self.assertEqual(resp4.status_code, status.HTTP_404_NOT_FOUND)
+
+        # update non-existent item on an existing wishlist
+        resp5 = self.app.put(
+            BASE_URL + '/{}/items/999'.format(wishlist_json['id']),
+            json=new_item,
+            content_type=CONTENT_TYPE_JSON,
+            headers=self.headers
+        )
+        self.assertEqual(resp5.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_purchase_item(self):
         """Purchase an existing item"""
@@ -360,6 +447,29 @@ class TestResourceServer(TestCase):
         self.assertEqual(resp3.status_code, status.HTTP_200_OK)
         self.assertEqual(len(items), 1)
 
+        # get all items on non-existent wishlist
+        resp4 = self.app.get(
+            BASE_URL + "/999/items",
+            headers=self.headers
+        )
+        self.assertEqual(resp4.status_code, status.HTTP_404_NOT_FOUND)
+
+    def list_all_items_on_empty_wishlist(self):
+        """List items on an empty Wishlist"""
+        test_wishlist = WishlistFactory()
+        resp = self.app.post(
+            BASE_URL, json=test_wishlist.serialize(), content_type=CONTENT_TYPE_JSON, headers=self.headers
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        wishlist_json = resp.get_json()
+
+        resp2 = self.app.get(
+            BASE_URL + '/{}/items'.format(wishlist_json['id']),
+            headers=self.headers
+        )
+        self.assertEqual(resp2.status_code, status.HTTP_404_NOT_FOUND)
+        
+
     def test_query_wishlist_by_customer_id(self):
         number_of_wishlists = 4
         wishlists = self._create_wishlists(number_of_wishlists)
@@ -377,3 +487,29 @@ class TestResourceServer(TestCase):
     #def test_query_wishlist_by_invalid_customer_id(self):
     #    resp = self.app.get(BASE_URL, query_string="customer_id=foo")
     #    self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_delete_all(self):
+        """Delete all Wishlists and Items"""
+        # add an item
+        test_wishlist = WishlistFactory()
+        resp = self.app.post(
+            BASE_URL, json=test_wishlist.serialize(), content_type=CONTENT_TYPE_JSON, headers=self.headers
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        wishlist_json = resp.get_json()
+
+        # add an item
+        test_item = ItemFactory(__sequence=1)
+        logging.debug(test_item)
+        resp2 = self.app.post(
+            ITEM_URL, json=test_item.serialize(), content_type=CONTENT_TYPE_JSON, headers=self.headers
+        )
+        self.assertEqual(resp2.status_code, status.HTTP_201_CREATED)
+        item_json = resp2.get_json()
+
+        # delete everything
+        resp3 = self.app.delete(
+            BASE_URL,
+            headers=self.headers
+        )
+        self.assertEqual(resp3.status_code, status.HTTP_204_NO_CONTENT)

@@ -4,6 +4,7 @@ Wishlists Service
 """
 
 import uuid
+import os
 from functools import wraps
 from flask import abort, jsonify, make_response, request, url_for, send_from_directory
 from flask_restx import Api, Resource, fields, reqparse, inputs
@@ -26,25 +27,18 @@ authorizations = {
 ######################################################################
 # Main index route before we define the API
 ######################################################################
-@app.route("/")
+@app.route("/", methods=["GET"])
 def index():
-    return (
-        jsonify(
-            name=APP_NAME,
-            resources={},
-            url=url_for("index"),
-            version=VERSION,
-        ),
-        status.HTTP_200_OK,
-    )
+    return app.send_static_file('index.html'), status.HTTP_200_OK
 
-######################################################################
-# Static route for BDD Form user interface
-######################################################################
-@app.route("/app/<path:name>", methods=["GET"])
-def display_form_app(name):
-    app.logger.info("Getting form app html: %s", name)
-    return send_from_directory('../app/', name)
+@app.route("/public/<path:name>", methods=["GET"])
+def service_public_file(name):
+    return app.send_static_file('public/' + name), status.HTTP_200_OK
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory('../app/public', 'favicon-32x32.png', mimetype='image/vnd.microsoft.icon')
+
 
 # configure swagger
 api = Api(app,
@@ -129,7 +123,7 @@ def token_required(f):
         if 'X-Api-Key' in request.headers:
             token = request.headers['X-Api-Key']
 
-        print("X-Api-Key: '{}', API_KEY in config: '{}'".format(token, app.config['API_KEY']))
+        # print("X-Api-Key: '{}', API_KEY in config: '{}'".format(token, app.config['API_KEY']))
         if app.config.get('API_KEY') and app.config['API_KEY'] == token:
             return f(*args, **kwargs)
         else:
@@ -298,11 +292,9 @@ class WishlistCollection(Resource):
         """
         app.logger.info('Request to Delete all wishlists...')
         if "TESTING" in app.config and app.config["TESTING"]:
-            Item.remove_all()
-            Wishlist.remove_all()
+            Item.query.delete()
+            Wishlist.query.delete()
             app.logger.info("Removed all Wishlists and Items from the database")
-        else:
-            app.logger.warning("Request to clear database while system not under test")
 
         return '', status.HTTP_204_NO_CONTENT
 
@@ -467,7 +459,7 @@ class ItemCollection(Resource):
         item.deserialize(request.get_json())
         item.create(wishlist_id)
         message = item.serialize()
-        print("item_id: '{}', wishlist_id: '{}'".format(item.id, wishlist_id))
+        # print("item_id: '{}', wishlist_id: '{}'".format(item.id, wishlist_id))
         location_url = api.url_for(ItemResource, item_id=item.id, wishlist_id=wishlist_id, _external=True)
 
         return item.serialize(), status.HTTP_201_CREATED, {'Location': location_url}
@@ -528,8 +520,3 @@ def check_content_type(media_type):
         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
         "Content-Type must be {}".format(media_type),
     )
-
-def data_reset():
-    """ Removes all Wishlists and Items from the database """
-    Item.remove_all()
-    Wishlist.remove_all()

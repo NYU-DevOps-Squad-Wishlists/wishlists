@@ -13,7 +13,7 @@ from selenium.webdriver.common.by import By
 WAIT_SECONDS = int(getenv('WAIT_SECONDS', '3'))
 # PORT = int(getenv('PORT', 8080))
 # BASE_URL = getenv('BASE_URL', 'http://127.0.0.1:' + str(PORT) + '/app/index.html')
-BASE_URL = getenv('BASE_URL', 'http://127.0.0.1:5000/app/index.html')
+BASE_URL = getenv('BASE_URL', 'http://127.0.0.1:5000')
 
 def before_all(context):
     """ Executed once before all tests """

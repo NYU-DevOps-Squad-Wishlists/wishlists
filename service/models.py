@@ -142,14 +142,9 @@ class Wishlist(db.Model):
         app.logger.info("Initializing database")
         cls.app = app
         # This is where we initialize SQLAlchemy from the Flask app
-        try:
-            db.init_app(app)
-            app.app_context().push()
-            db.create_all()  # make our sqlalchemy tables
-
-        except ConnectionError:
-            raise DatabaseConnectionError("Database could not be reached")
-        
+        db.init_app(app)
+        app.app_context().push()
+        db.create_all()  # make our sqlalchemy tables
 
     @classmethod
     def all(cls):
@@ -299,13 +294,9 @@ class Item(db.Model):
         app.logger.info("Initializing database")
         cls.app = app
         # This is where we initialize SQLAlchemy from the Flask app
-        try:
-            db.init_app(app)
-            app.app_context().push()
-            db.create_all()  # make our sqlalchemy tables
-
-        except ConnectionError:
-            raise DatabaseConnectionError("Database could not be reached")
+        db.init_app(app)
+        app.app_context().push()
+        db.create_all()  # make our sqlalchemy tables
 
     @classmethod
     def all(cls):

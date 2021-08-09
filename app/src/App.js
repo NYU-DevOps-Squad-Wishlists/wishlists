@@ -13,12 +13,11 @@ class App extends React.Component {
 
   getWishlists() {
       const options = {
-          url: window.location.protocol + '//' + window.document.location.host + '/wishlists',
+          url: window.location.protocol + '//' + window.document.location.host + '/api/wishlists',
           method: 'GET',
           headers: {
               'Content-Type': 'application/json'
           },
-          data: {}
       }
       axios(options).then((resp) => {
           this.setState({ wishlists: resp.data.sort((a, b) => a.id > b.id ? 1 : -1) });

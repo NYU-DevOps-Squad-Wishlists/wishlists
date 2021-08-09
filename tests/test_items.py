@@ -16,6 +16,7 @@ from werkzeug.exceptions import NotFound
 from service.models import Item, Wishlist, DataValidationError, db
 from service import app
 from factories import ItemFactory, WishlistFactory
+from nose.tools import *
 
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/testdb"
@@ -143,6 +144,7 @@ class TestItemModel(unittest.TestCase):
         self.assertEqual(item.purchased, True)
 
     def test_deserialize_item_uses_default_value_for_purchased(self):
+        """Deserialize an item"""
         data = {
             "id": 1,
             "name": "kitty",
