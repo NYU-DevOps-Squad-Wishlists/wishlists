@@ -22,10 +22,22 @@ name (string) - the name of the wishlist
 wishlist_id (int) - the wishlist the item belongs to (i.e., 1, 2)
 
 """
+import os
 import logging
 from enum import Enum
 from flask_sqlalchemy import SQLAlchemy
+from retry import retry
+from requests import HTTPError, ConnectionError
 from . import app, APP_NAME, VERSION
+
+# global variables for retry (must be int)
+RETRY_COUNT = int(os.environ.get("RETRY_COUNT", 10))
+RETRY_DELAY = int(os.environ.get("RETRY_DELAY", 1))
+RETRY_BACKOFF = int(os.environ.get("RETRY_BACKOFF", 2))
+
+logger = logging.getLogger("flask.app")
+
+
 
 # Create the SQLAlchemy object to be initialized later in init_db()
 db = SQLAlchemy()
@@ -73,6 +85,7 @@ class Wishlist(db.Model):
     def __repr__(self):
         return "<Wishlist %r id=[%s]>" % (self.name, self.id)
 
+    @retry(HTTPError, delay=RETRY_DELAY, backoff=RETRY_BACKOFF, tries=RETRY_COUNT, logger=logger)
     def create(self):
         """
         Creates a Wishlist to the database
@@ -82,6 +95,7 @@ class Wishlist(db.Model):
         db.session.add(self)
         db.session.commit()
 
+    @retry(HTTPError, delay=RETRY_DELAY, backoff=RETRY_BACKOFF, tries=RETRY_COUNT, logger=logger)
     def update(self):
         """
         Updates a Wishlist to the database
@@ -91,6 +105,7 @@ class Wishlist(db.Model):
             raise DataValidationError("Update called with empty ID field")
         db.session.commit()
 
+    @retry(HTTPError, delay=RETRY_DELAY, backoff=RETRY_BACKOFF, tries=RETRY_COUNT, logger=logger)
     def delete(self):
         """Removes a Wishlist from the data store"""
         app.logger.info("Deleting %s", self.name)
@@ -147,12 +162,14 @@ class Wishlist(db.Model):
         db.create_all()  # make our sqlalchemy tables
 
     @classmethod
+    @retry(HTTPError, delay=RETRY_DELAY, backoff=RETRY_BACKOFF, tries=RETRY_COUNT, logger=logger)
     def all(cls):
         """Returns all of the Wishlists in the database"""
         app.logger.info("Processing all Wishlists")
         return cls.query.all()
 
     @classmethod
+    @retry(HTTPError, delay=RETRY_DELAY, backoff=RETRY_BACKOFF, tries=RETRY_COUNT, logger=logger)
     def find(cls, wishlist_id):
         """Finds a Wishlist by its ID
 
@@ -167,6 +184,7 @@ class Wishlist(db.Model):
         return cls.query.get(wishlist_id)
 
     @classmethod
+    @retry(HTTPError, delay=RETRY_DELAY, backoff=RETRY_BACKOFF, tries=RETRY_COUNT, logger=logger)
     def find_or_404(cls, wishlist_id):
         """Find a Wishlist by it's id
 
@@ -180,7 +198,9 @@ class Wishlist(db.Model):
         app.logger.info("Processing lookup or 404 for id %s ...", wishlist_id)
         return cls.query.get_or_404(wishlist_id)
 
+
     @classmethod
+    @retry(HTTPError, delay=RETRY_DELAY, backoff=RETRY_BACKOFF, tries=RETRY_COUNT, logger=logger)
     def find_by_customer_id(cls, customer_id):
         """Returns all of the Wishlists in a customer_id
 
@@ -193,6 +213,8 @@ class Wishlist(db.Model):
         """
         app.logger.info("Processing customer_id query for %s ...", customer_id)
         return cls.query.filter(cls.customer_id == customer_id).all()
+
+    
 
 
 class Item(db.Model):
@@ -222,6 +244,7 @@ class Item(db.Model):
     def __repr__(self):
         return "<Item %r id=[%s]>" % (self.name, self.id)
 
+    @retry(HTTPError, delay=RETRY_DELAY, backoff=RETRY_BACKOFF, tries=RETRY_COUNT, logger=logger)
     def create(self, wishlist_id):
         """
         Creates a Item to the database
@@ -232,6 +255,7 @@ class Item(db.Model):
         db.session.add(self)
         db.session.commit()
 
+    @retry(HTTPError, delay=RETRY_DELAY, backoff=RETRY_BACKOFF, tries=RETRY_COUNT, logger=logger)
     def update(self):
         """
         Updates a Item to the database
@@ -241,11 +265,13 @@ class Item(db.Model):
             raise DataValidationError("Update called with empty ID field")
         db.session.commit()
 
+    @retry(HTTPError, delay=RETRY_DELAY, backoff=RETRY_BACKOFF, tries=RETRY_COUNT, logger=logger)
     def delete(self):
         """Removes a Item from the data store"""
         app.logger.info("Deleting %s", self.name)
         db.session.delete(self)
         db.session.commit()
+
 
     def serialize(self):
         """Serializes a Item into a dictionary"""
@@ -299,12 +325,15 @@ class Item(db.Model):
         db.create_all()  # make our sqlalchemy tables
 
     @classmethod
+    @retry(HTTPError, delay=RETRY_DELAY, backoff=RETRY_BACKOFF, tries=RETRY_COUNT, logger=logger)
     def all(cls):
         """Returns all of the Items in the database"""
         app.logger.info("Processing all Items")
         return cls.query.all()
 
+
     @classmethod
+    @retry(HTTPError, delay=RETRY_DELAY, backoff=RETRY_BACKOFF, tries=RETRY_COUNT, logger=logger)
     def find(cls, item_id):
         """Finds a Item by it's ID
 
@@ -318,7 +347,9 @@ class Item(db.Model):
         app.logger.info("Processing lookup for id %s ...", item_id)
         return cls.query.get(item_id)
 
+
     @classmethod
+    @retry(HTTPError, delay=RETRY_DELAY, backoff=RETRY_BACKOFF, tries=RETRY_COUNT, logger=logger)
     def find_or_404(cls, item_id):
         """Find a Item by it's id
 
@@ -333,6 +364,7 @@ class Item(db.Model):
         return cls.query.get_or_404(item_id)
 
     @classmethod
+    @retry(HTTPError, delay=RETRY_DELAY, backoff=RETRY_BACKOFF, tries=RETRY_COUNT, logger=logger)
     def find_by_wishlist_id(cls, wishlist_id):
         """Returns all of the Wishlists in a wishlist_id
 
@@ -346,7 +378,9 @@ class Item(db.Model):
         app.logger.info("Processing wishlist_id query for %s ...", wishlist_id)
         return cls.query.filter(cls.wishlist_id == wishlist_id).all()
 
+    
     @classmethod
+    @retry(HTTPError, delay=RETRY_DELAY, backoff=RETRY_BACKOFF, tries=RETRY_COUNT, logger=logger)
     def get_by_wishlist_id_and_item_id(cls, wishlist_id, item_id):
         app.logger.info("Processing wishlist_id/item_id query for %s/%s ...", wishlist_id, item_id)
         return cls.query.filter_by(wishlist_id=wishlist_id, id=item_id).first()
