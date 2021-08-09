@@ -414,4 +414,3 @@ class Item(db.Model):
     def get_by_wishlist_id_and_item_id(cls, wishlist_id, item_id):
         logger.info("Processing wishlist_id/item_id query for %s/%s ...", wishlist_id, item_id)
         return cls.query.filter_by(wishlist_id=wishlist_id, id=item_id).first()
-    
