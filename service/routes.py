@@ -144,7 +144,7 @@ class WishlistResource(Resource):
     #------------------------------------------------------------------
     # UPDATE AN EXISTING WISHLIST
     #------------------------------------------------------------------
-    @api.doc('update_wishlists', security='apikey')
+    @api.doc('update_wishlists')
     @api.response(404, 'Wishlist not found')
     @api.response(400, 'The posted Wishlist data was not valid')
     @api.expect(wishlist_model)
@@ -170,7 +170,7 @@ class WishlistResource(Resource):
     #------------------------------------------------------------------
     # DELETE A WISHLIST
     #------------------------------------------------------------------
-    @api.doc('delete_wishlists', security='apikey')
+    @api.doc('delete_wishlists')
     @api.response(204, 'Wishlist deleted')
     def delete(self, wishlist_id):
         """
@@ -221,7 +221,7 @@ class WishlistCollection(Resource):
     #------------------------------------------------------------------
     # ADD A NEW WISHLIST
     #------------------------------------------------------------------
-    @api.doc('create_wishlist', security='apikey')
+    @api.doc('create_wishlist')
     @api.response(400, 'The posted data was not valid')
     @api.expect(create_wishlist_model)
     @api.marshal_with(wishlist_model, code=201)
@@ -242,7 +242,7 @@ class WishlistCollection(Resource):
     #------------------------------------------------------------------
     # DELETE ALL WISHLISTS (for testing only)
     #------------------------------------------------------------------
-    @api.doc('delete_all_wishlists', security='apikey')
+    @api.doc('delete_all_wishlists')
     @api.response(204, 'All Wishlists deleted')
     def delete(self):
         """
@@ -317,7 +317,7 @@ class ItemResource(Resource):
     #------------------------------------------------------------------
     # UPDATE AN EXISTING ITEM
     #------------------------------------------------------------------
-    @api.doc('update_items', security='apikey')
+    @api.doc('update_items')
     @api.response(404, 'Item not found')
     @api.response(400, 'The posted Item data was not valid')
     @api.expect(item_model)
@@ -348,7 +348,7 @@ class ItemResource(Resource):
     #------------------------------------------------------------------
     # DELETE AN ITEM
     #------------------------------------------------------------------
-    @api.doc('delete_items', security='apikey')
+    @api.doc('delete_items')
     @api.response(204, 'Item deleted')
     def delete(self, wishlist_id, item_id):
         """
@@ -398,7 +398,7 @@ class ItemCollection(Resource):
     #------------------------------------------------------------------
     # ADD A NEW ITEM
     #------------------------------------------------------------------
-    @api.doc('create_item', security='apikey')
+    @api.doc('create_item')
     @api.response(400, 'The posted data was not valid')
     @api.expect(create_item_model)
     @api.marshal_with(item_model, code=201)
