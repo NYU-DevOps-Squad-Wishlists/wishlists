@@ -76,14 +76,6 @@ class TestResourceServer(TestCase):
             items.append(test_items)
         return items
 
-    #def test_bad_db_connection(self):
-    #    db.session.remove()
-    #    test_wishlist = WishlistFactory()
-    #    resp = self.app.post(
-    #        BASE_URL, json=test_wishlist.serialize(), content_type=CONTENT_TYPE_JSON, headers=self.headers
-    #    )
-    #    self.assertEqual(resp.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
-
     def test_index_returns_OK_status(self):
         """Form UI shows on index route"""
         response = self.app.get("/")
