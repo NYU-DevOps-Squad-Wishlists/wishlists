@@ -12,7 +12,7 @@ APP_NAME = "Wishlists API Service"
 VERSION = "0.5.0"
 
 # Create Flask application
-app = Flask(__name__)
+app = Flask(__name__, static_folder="../app")
 app.config.from_object("config")
 
 # Import the routes after the Flask app is created

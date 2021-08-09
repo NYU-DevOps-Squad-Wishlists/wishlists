@@ -28,7 +28,7 @@ from enum import Enum
 from flask_sqlalchemy import SQLAlchemy
 from retry import retry
 from requests import HTTPError, ConnectionError
-
+from . import app, APP_NAME, VERSION
 
 # global variables for retry (must be int)
 RETRY_COUNT = int(os.environ.get("RETRY_COUNT", 10))
@@ -37,21 +37,25 @@ RETRY_BACKOFF = int(os.environ.get("RETRY_BACKOFF", 2))
 
 logger = logging.getLogger("flask.app")
 
+
+
 # Create the SQLAlchemy object to be initialized later in init_db()
 db = SQLAlchemy()
+
+
+class DatabaseConnectionError(Exception):
+    """Custom Exception when database connection fails"""
+    pass
+
+class DataValidationError(Exception):
+    """Used for an data validation errors when deserializing"""
+    pass
 
 
 def init_db(app):
     """Initialies the SQLAlchemy app"""
     Wishlist.init_db(app)
     Item.init_db(app)
-
-
-class DataValidationError(Exception):
-    """Used for an data validation errors when deserializing"""
-
-    pass
-
 
 class Wishlist(db.Model):
     """
@@ -86,7 +90,7 @@ class Wishlist(db.Model):
         """
         Creates a Wishlist to the database
         """
-        logger.info("Creating %s", self.name)
+        app.logger.info("Creating %s", self.name)
         self.id = None  # id must be none to generate next primary key
         db.session.add(self)
         db.session.commit()
@@ -96,7 +100,7 @@ class Wishlist(db.Model):
         """
         Updates a Wishlist to the database
         """
-        logger.info("Saving %s", self.name)
+        app.logger.info("Saving %s", self.name)
         if not self.id:
             raise DataValidationError("Update called with empty ID field")
         db.session.commit()
@@ -104,7 +108,7 @@ class Wishlist(db.Model):
     @retry(HTTPError, delay=RETRY_DELAY, backoff=RETRY_BACKOFF, tries=RETRY_COUNT, logger=logger)
     def delete(self):
         """Removes a Wishlist from the data store"""
-        logger.info("Deleting %s", self.name)
+        app.logger.info("Deleting %s", self.name)
         db.session.delete(self)
         db.session.commit()
 
@@ -150,7 +154,7 @@ class Wishlist(db.Model):
         :type data: Flask
 
         """
-        logger.info("Initializing database")
+        app.logger.info("Initializing database")
         cls.app = app
         # This is where we initialize SQLAlchemy from the Flask app
         db.init_app(app)
@@ -161,7 +165,7 @@ class Wishlist(db.Model):
     @retry(HTTPError, delay=RETRY_DELAY, backoff=RETRY_BACKOFF, tries=RETRY_COUNT, logger=logger)
     def all(cls):
         """Returns all of the Wishlists in the database"""
-        logger.info("Processing all Wishlists")
+        app.logger.info("Processing all Wishlists")
         return cls.query.all()
 
     @classmethod
@@ -176,7 +180,7 @@ class Wishlist(db.Model):
         :rtype: Wishlist
 
         """
-        logger.info("Processing lookup for id %s ...", wishlist_id)
+        app.logger.info("Processing lookup for id %s ...", wishlist_id)
         return cls.query.get(wishlist_id)
 
     @classmethod
@@ -191,23 +195,9 @@ class Wishlist(db.Model):
         :rtype: Wishlist
 
         """
-        logger.info("Processing lookup or 404 for id %s ...", wishlist_id)
+        app.logger.info("Processing lookup or 404 for id %s ...", wishlist_id)
         return cls.query.get_or_404(wishlist_id)
 
-    @classmethod
-    @retry(HTTPError, delay=RETRY_DELAY, backoff=RETRY_BACKOFF, tries=RETRY_COUNT, logger=logger)
-    def find_by_name(cls, name):
-        """Returns all Wishlists with the given name
-
-        :param name: the name of the Wishlists you want to match
-        :type name: str
-
-        :return: a collection of Wishlists with that name
-        :rtype: list
-
-        """
-        logger.info("Processing name query for %s ...", name)
-        return cls.query.filter(cls.name == name)
 
     @classmethod
     @retry(HTTPError, delay=RETRY_DELAY, backoff=RETRY_BACKOFF, tries=RETRY_COUNT, logger=logger)
@@ -221,8 +211,8 @@ class Wishlist(db.Model):
         :rtype: list
 
         """
-        logger.info("Processing customer_id query for %s ...", customer_id)
-        return cls.query.filter(cls.customer_id == customer_id)
+        app.logger.info("Processing customer_id query for %s ...", customer_id)
+        return cls.query.filter(cls.customer_id == customer_id).all()
 
     
 
@@ -259,7 +249,7 @@ class Item(db.Model):
         """
         Creates a Item to the database
         """
-        logger.info("Creating %s", self.name)
+        app.logger.info("Creating %s", self.name)
         self.id = None  # id must be none to generate next primary key
         self.wishlist_id = wishlist_id
         db.session.add(self)
@@ -270,7 +260,7 @@ class Item(db.Model):
         """
         Updates a Item to the database
         """
-        logger.info("Saving %s", self.name)
+        app.logger.info("Saving %s", self.name)
         if not self.id:
             raise DataValidationError("Update called with empty ID field")
         db.session.commit()
@@ -278,7 +268,7 @@ class Item(db.Model):
     @retry(HTTPError, delay=RETRY_DELAY, backoff=RETRY_BACKOFF, tries=RETRY_COUNT, logger=logger)
     def delete(self):
         """Removes a Item from the data store"""
-        logger.info("Deleting %s", self.name)
+        app.logger.info("Deleting %s", self.name)
         db.session.delete(self)
         db.session.commit()
 
@@ -327,7 +317,7 @@ class Item(db.Model):
         :type data: Flask
 
         """
-        logger.info("Initializing database")
+        app.logger.info("Initializing database")
         cls.app = app
         # This is where we initialize SQLAlchemy from the Flask app
         db.init_app(app)
@@ -338,7 +328,7 @@ class Item(db.Model):
     @retry(HTTPError, delay=RETRY_DELAY, backoff=RETRY_BACKOFF, tries=RETRY_COUNT, logger=logger)
     def all(cls):
         """Returns all of the Items in the database"""
-        logger.info("Processing all Items")
+        app.logger.info("Processing all Items")
         return cls.query.all()
 
 
@@ -354,7 +344,7 @@ class Item(db.Model):
         :rtype: Item
 
         """
-        logger.info("Processing lookup for id %s ...", item_id)
+        app.logger.info("Processing lookup for id %s ...", item_id)
         return cls.query.get(item_id)
 
 
@@ -370,25 +360,8 @@ class Item(db.Model):
         :rtype: Item
 
         """
-        logger.info("Processing lookup or 404 for id %s ...", item_id)
+        app.logger.info("Processing lookup or 404 for id %s ...", item_id)
         return cls.query.get_or_404(item_id)
-
-
-    @classmethod
-    @retry(HTTPError, delay=RETRY_DELAY, backoff=RETRY_BACKOFF, tries=RETRY_COUNT, logger=logger)
-    def find_by_name(cls, name):
-        """Returns all Items with the given name
-
-        :param name: the name of the Items you want to match
-        :type name: str
-
-        :return: a collection of Items with that name
-        :rtype: list
-
-        """
-        logger.info("Processing name query for %s ...", name)
-        return cls.query.filter(cls.name == name)
-
 
     @classmethod
     @retry(HTTPError, delay=RETRY_DELAY, backoff=RETRY_BACKOFF, tries=RETRY_COUNT, logger=logger)
@@ -402,12 +375,12 @@ class Item(db.Model):
         :rtype: list
 
         """
-        logger.info("Processing wishlist_id query for %s ...", wishlist_id)
-        return cls.query.filter(cls.wishlist_id == wishlist_id)
+        app.logger.info("Processing wishlist_id query for %s ...", wishlist_id)
+        return cls.query.filter(cls.wishlist_id == wishlist_id).all()
 
     
     @classmethod
     @retry(HTTPError, delay=RETRY_DELAY, backoff=RETRY_BACKOFF, tries=RETRY_COUNT, logger=logger)
     def get_by_wishlist_id_and_item_id(cls, wishlist_id, item_id):
-        logger.info("Processing wishlist_id/item_id query for %s/%s ...", wishlist_id, item_id)
+        app.logger.info("Processing wishlist_id/item_id query for %s/%s ...", wishlist_id, item_id)
         return cls.query.filter_by(wishlist_id=wishlist_id, id=item_id).first()

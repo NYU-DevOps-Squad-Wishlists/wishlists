@@ -1,6 +1,8 @@
 import React from 'react'; 
 import { Wishlist, Item } from './Model';
 
+const API_ROOT = '/api/wishlists';
+
 class WishlistForm extends React.Component {
   constructor(props) {
     super(props);
@@ -44,7 +46,7 @@ class WishlistForm extends React.Component {
   create(e) {
     e.preventDefault();
     this.setState({wishlistResultStatus: 'Sending request'});
-    this.app.sendRequest(`/wishlists`, 'POST', {
+    this.app.sendRequest(`${API_ROOT}`, 'POST', {
       name: this.state.wishlist_name,
       customer_id: parseInt(this.state.customer_id)
     }, this.createCallback);
@@ -73,7 +75,7 @@ class WishlistForm extends React.Component {
     const wishlist_id = document.getElementById(`wishlist_id_${index}`).value;
     if ( wishlist_id ) {
       this.setState({lastUdIndex: index});
-      this.app.sendRequest(`/wishlists/${wishlist_id}`, 'PUT', {
+      this.app.sendRequest(`${API_ROOT}/${wishlist_id}`, 'PUT', {
         customer_id: document.getElementById(`wishlist_customer_id_${index}`).value,
         name: document.getElementById(`wishlist_name_${index}`).value
       }, this.updateCallback);
@@ -94,7 +96,7 @@ class WishlistForm extends React.Component {
     // extract the wishlist_id
     const wishlist_id = document.getElementById(`wishlist_id_${index}`).value;
     if ( wishlist_id ) {
-      this.app.sendRequest(`/wishlists/${wishlist_id}`, 'DELETE', {
+      this.app.sendRequest(`${API_ROOT}/${wishlist_id}`, 'DELETE', {
       }, this.deleteCallback);
     }
     return false;
@@ -113,7 +115,7 @@ class WishlistForm extends React.Component {
       // extract the wishlist_id
       const wishlist_id = document.getElementById(`wishlist_read_id`).value;
       console.log(`sending read request for ${wishlist_id}`);
-      this.app.sendRequest(`/wishlists/${wishlist_id}`, 'GET', {
+      this.app.sendRequest(`${API_ROOT}/${wishlist_id}`, 'GET', {
       }, this.readCallback);
       return false;
     }
@@ -139,7 +141,7 @@ class WishlistForm extends React.Component {
   list(e) {
       e.preventDefault();
       console.log('sending list request');
-      this.app.sendRequest(`/wishlists`, 'GET', {
+      this.app.sendRequest(`${API_ROOT}`, 'GET', {
       }, this.listCallback);
       return false;
   }
@@ -166,7 +168,7 @@ class WishlistForm extends React.Component {
   }
   search(e) {
     e.preventDefault();
-    this.app.sendRequest(`/wishlists?customer_id=${document.getElementById('search_customer_id').value}`, 'GET', {
+    this.app.sendRequest(`${API_ROOT}?customer_id=${document.getElementById('search_customer_id').value}`, 'GET', {
     }, this.searchCallback);
     return false;
   }
@@ -332,7 +334,7 @@ class ItemForm extends React.Component {
   }
   currentBasePath(wid = null) {
     const wishlist_id = wid || this.state.current_wishlist.id;
-    return `/wishlists/${wishlist_id}`;
+    return `${API_ROOT}/${wishlist_id}`;
   }
   getCurrentItems(wid) {
     const wishlist_id = wid || this.state.current_wishlist.id;
