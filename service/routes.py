@@ -42,38 +42,57 @@ api = Api(app,
           prefix='/api'
          )
 
-create_wishlist_model = api.model('Wishlist', {
-    'name': fields.String(required=True,
-                          description='The name of the Wishlist'),
-    'customer_id': fields.Integer(required=True,
-                              description='The Customer ID of the wishlist owner'),
-})
-create_item_model = api.model('Item', {
-    'wishlist_id': fields.Integer(require=True,
-        description='The wishlist ID'),
-    'name': fields.String(required=True,
-                          description='The name of the Item'),
-    'purchased': fields.Boolean(required=False,
-    description='Whether the item has been purchased or not',
-    default=False)
-})
-
+create_wishlist_model = api.model(
+    'CreateWishlist',
+    {
+        'name': fields.String(
+            required=True,
+            description='The name of the Wishlist'
+        ),
+        'customer_id': fields.Integer(
+            required=True,
+           description='The Customer ID of the wishlist owner'
+        ),
+    }
+)
+create_item_model = api.model(
+    'CreateItem',
+    {
+        'wishlist_id': fields.Integer(
+            required=True,
+            description='The wishlist ID'
+        ),
+        'name': fields.String(
+            required=True,
+            description='The name of the Item'
+        ),
+        'purchased': fields.Boolean(
+            required=False,
+            description='Whether the item has been purchased or not',
+            default=False
+        )
+    }
+)
 
 wishlist_model = api.inherit(
-    'WishlistModel',
+    'Wishlist',
     create_wishlist_model,
     {
-        'id': fields.Integer(readOnly=True,
-                            description='The unique id assigned internally by service'),
+        'id': fields.Integer(
+            readOnly=True,
+            description='The unique id assigned internally by service'
+        ),
     }
 )
 
 item_model = api.inherit(
-    'ItemModel',
+    'Item',
     create_item_model,
     {
-        'id': fields.Integer(readOnly=True,
-                            description='The unique id assigned internally by service'),
+        'id': fields.Integer(
+            readOnly=True,
+            description='The unique id assigned internally by service'
+        ),
     }
 )
 
