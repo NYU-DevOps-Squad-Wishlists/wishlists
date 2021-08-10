@@ -18,8 +18,9 @@ SQLALCHEMY_DATABASE_URI = DATABASE_URI
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SQLALCHEMY_ENGINE_OPTIONS = {
     "poolclass": pool.QueuePool,
-    "pool_size": 2,
-    "max_overflow": -1
+    "pool_size": 1,
+    "max_overflow": -1,
+    "isolation_level": "AUTOCOMMIT"
 }
 
 # Secret for session management
