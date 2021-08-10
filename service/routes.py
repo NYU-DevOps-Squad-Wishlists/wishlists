@@ -141,6 +141,7 @@ class WishlistResource(Resource):
     # RETRIEVE A WISHLIST
     #------------------------------------------------------------------
     @api.doc('get_wishlists')
+    @api.response(200, 'Wishlist found')
     @api.response(404, 'Wishlist not found')
     @api.marshal_with(wishlist_model)
     def get(self, wishlist_id):
@@ -164,6 +165,7 @@ class WishlistResource(Resource):
     # UPDATE AN EXISTING WISHLIST
     #------------------------------------------------------------------
     @api.doc('update_wishlists')
+    @api.response(200, 'Wishlist updated')
     @api.response(404, 'Wishlist not found')
     @api.response(400, 'The posted Wishlist data was not valid')
     @api.expect(wishlist_model)
@@ -216,6 +218,7 @@ class WishlistCollection(Resource):
     # LIST ALL WISHLISTS
     #------------------------------------------------------------------
     @api.doc('list_wishlists')
+    @api.response(200, 'Listing wishlists')
     @api.expect(wishlist_args, validate=True)
     @api.marshal_list_with(wishlist_model)
     def get(self):
@@ -241,6 +244,7 @@ class WishlistCollection(Resource):
     # ADD A NEW WISHLIST
     #------------------------------------------------------------------
     @api.doc('create_wishlist')
+    @api.response(201, 'Wishlist created')
     @api.response(400, 'The posted data was not valid')
     @api.expect(create_wishlist_model)
     @api.marshal_with(wishlist_model, code=201)
@@ -311,7 +315,8 @@ class ItemResource(Resource):
     # RETRIEVE AN ITEM
     #------------------------------------------------------------------
     @api.doc('get_items')
-    @api.response(404, 'Item not found')
+    @api.response(200, 'Item found')
+    @api.response(404, 'Item or Wishlist not found')
     @api.marshal_with(item_model)
     def get(self, wishlist_id, item_id):
         """
@@ -337,7 +342,8 @@ class ItemResource(Resource):
     # UPDATE AN EXISTING ITEM
     #------------------------------------------------------------------
     @api.doc('update_items')
-    @api.response(404, 'Item not found')
+    @api.response(200, 'Item updated')
+    @api.response(404, 'Item or Wishlist not found')
     @api.response(400, 'The posted Item data was not valid')
     @api.expect(item_model)
     @api.marshal_with(item_model)
@@ -369,6 +375,7 @@ class ItemResource(Resource):
     #------------------------------------------------------------------
     @api.doc('delete_items')
     @api.response(204, 'Item deleted')
+    @api.response(404, 'Wishlist not found')
     def delete(self, wishlist_id, item_id):
         """
         Delete an Item
@@ -397,6 +404,8 @@ class ItemCollection(Resource):
     # LIST ALL ITEMS
     #------------------------------------------------------------------
     @api.doc('list_items')
+    @api.response(200, 'Listing all items')
+    @api.response(404, 'Wishlist not found or Wishlist empty')
     @api.marshal_list_with(item_model)
     def get(self, wishlist_id):
         """ Returns all of the Items on a specific Wishlist """
@@ -418,7 +427,9 @@ class ItemCollection(Resource):
     # ADD A NEW ITEM
     #------------------------------------------------------------------
     @api.doc('create_item')
+    @api.response(201, 'Item added')
     @api.response(400, 'The posted data was not valid')
+    @api.response(404, 'Wishlist not found')
     @api.expect(create_item_model)
     @api.marshal_with(item_model, code=201)
     def post(self, wishlist_id):
@@ -450,7 +461,8 @@ class ItemCollection(Resource):
 class PurchaseResource(Resource):
     """ Purchase actions on an Item """
     @api.doc('purchase_items')
-    @api.response(404, 'Item not found')
+    @api.response(200, 'Item purchased')
+    @api.response(404, 'Item or Wishlist not found')
     def put(self, wishlist_id, item_id):
         """
         Purchase an Item
