@@ -37,8 +37,6 @@ RETRY_BACKOFF = int(os.environ.get("RETRY_BACKOFF", 2))
 
 logger = logging.getLogger("flask.app")
 
-
-
 # Create the SQLAlchemy object to be initialized later in init_db()
 db = SQLAlchemy()
 
@@ -52,10 +50,10 @@ class DataValidationError(Exception):
     pass
 
 
-def init_db(app):
+def init_db(app, pool=None):
     """Initialies the SQLAlchemy app"""
-    Wishlist.init_db(app)
-    Item.init_db(app)
+    Wishlist.init_db(app, pool)
+    Item.init_db(app, pool)
 
 class Wishlist(db.Model):
     """
@@ -147,14 +145,14 @@ class Wishlist(db.Model):
     ##################################################
 
     @classmethod
-    def init_db(cls, app):
+    def init_db(cls, app, pool=None):
         """Initializes the database session
 
         :param app: the Flask app
         :type data: Flask
 
         """
-        app.logger.info("Initializing database")
+        app.logger.info("Initializing Wishlist tables")
         cls.app = app
         # This is where we initialize SQLAlchemy from the Flask app
         db.init_app(app)
@@ -310,16 +308,17 @@ class Item(db.Model):
     ##################################################
 
     @classmethod
-    def init_db(cls, app):
+    def init_db(cls, app, pool=None):
         """Initializes the database session
 
         :param app: the Flask app
         :type data: Flask
 
         """
-        app.logger.info("Initializing database")
+        app.logger.info("Initializing Item tables")
         cls.app = app
         # This is where we initialize SQLAlchemy from the Flask app
+        app.logger.info(app.config['SQLALCHEMY_ENGINE_OPTIONS'])
         db.init_app(app)
         app.app_context().push()
         db.create_all()  # make our sqlalchemy tables
