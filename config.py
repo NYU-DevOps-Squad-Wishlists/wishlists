@@ -18,7 +18,7 @@ SQLALCHEMY_DATABASE_URI = DATABASE_URI
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SQLALCHEMY_ENGINE_OPTIONS = {
     "poolclass": pool.QueuePool,
-    "pool_size": 4,
+    "pool_size": 2,
     "max_overflow": -1
 }
 
